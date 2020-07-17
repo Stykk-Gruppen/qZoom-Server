@@ -32,3 +32,8 @@ VALUES ("Alpha", "stian", "123"),
 
 INSERT INTO room (id, host, password)
 VALUES ("Delta", 1, "123");
+
+INSERT INTO roomSession (roomId, userId, ipAddress)
+VALUES ("Delta", 1, "92.220.136.246"),
+("Delta", 2, "158.36.165.235"),
+("Delta", 3, "79.160.58.120");
