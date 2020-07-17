@@ -43,7 +43,7 @@ void SocketHandler::readPendingDatagrams()
             }
             else
             {
-                QSqlQuery q(*Database::db);
+                QSqlQuery q(Database::db);
                 q.prepare("SELECT roomSession.ipAddress FROM roomSession, user WHERE roomSession.userId = user.id AND user.streamId = :streamId");
                 q.bindValue(":streamId", streamId);
                 if (q.exec() && q.size() > 0)
@@ -64,7 +64,7 @@ void SocketHandler::readPendingDatagrams()
         }
         else
         {
-            QSqlQuery q(*Database::db);
+            QSqlQuery q(Database::db);
             q.prepare("SELECT rs.roomId, rs.ipAddress, u.streamId FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id");
             q.bindValue(":roomId", roomId);
             if (q.exec() && q.size() > 0)

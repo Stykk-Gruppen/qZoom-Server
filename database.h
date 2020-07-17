@@ -10,7 +10,7 @@ class Database
 public:
     Database();
     bool connectDatabase();
-    QSqlDatabase* db;
+    QSqlDatabase db;
 
 };
 

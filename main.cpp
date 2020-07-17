@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QTextStream>
+#include <iostream>
 #include "sockethandler.h"
 
 int main(int argc, char *argv[])
