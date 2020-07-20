@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS roomSession
 INSERT INTO user (streamId, username, password)
 VALUES ("Alpha", "stian", "123"),
 ("Bravo", "tarald", "123"),
-("Charlie", "kent", "123");
+("Charl", "kent", "123");
 
 INSERT INTO room (id, host, password)
 VALUES ("Delta", 1, "123");

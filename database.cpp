@@ -1,18 +1,26 @@
 #include "database.h"
 #include "config.cpp"
+#include <iostream>
 
 Database::Database()
 {
-    connectDatabase();
+    if (connectDatabase())
+    {
+        qDebug() << "The database is open";
+    }
+    else
+    {
+        qDebug() << "Failed to open the database";
+    }
 }
 
 bool Database::connectDatabase()
 {
-    db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName(dbHostName);
-    db.setDatabaseName(dbDatabaseName);
-    db.setUserName(dbUserName);
-    db.setPassword(dbPassword);
-    qDebug() << db.lastError();
-    return db.open();
+    mDb = QSqlDatabase::addDatabase("QMYSQL");
+    mDb.setHostName(dbHostName);
+    mDb.setDatabaseName(dbDatabaseName);
+    mDb.setUserName(dbUserName);
+    mDb.setPassword(dbPassword);
+    //qDebug() << mDb.lastError();
+    return mDb.open();
 }

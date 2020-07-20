@@ -9,6 +9,7 @@
 #include <QList>
 #include <QtConcurrent/QtConcurrent>
 #include <QMultiMap>
+#include <QDateTime>
 #include "database.h"
 
 class SocketHandler : public QObject, public Database
@@ -20,9 +21,17 @@ public:
     void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
     int sendDatagram(QByteArray, QString);
     void initSocket();
+    void startRemovalTimer(int seconds);
+
+public slots:
+    void removeOldParticipantsFromQMap();
+
 private:
     uint16_t mPort;
-    QMultiMap<char*, char*> mRooms;
+    QMultiMap<char*, char*> mRoomsMap;
+    int mStreamIdLength;
+    int mRoomIdLength;
+    QTimer* mTimer;
 
 signals:
 
