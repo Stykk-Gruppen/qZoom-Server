@@ -8,17 +8,22 @@ SocketHandler::SocketHandler(QObject *parent) : QObject(parent)
 
     mTimer = new QTimer(this);
     connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
-    initSocket();
+    initUdpSocket();
+
 }
 
-void SocketHandler::initSocket()
+
+
+void SocketHandler::initUdpSocket()
 {
     mUdpSocket = new QUdpSocket(this);
-    mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 
     //Connects readyRead to readPendingDatagram function,
     //which means when the socket recieves a packet the function will run.
     connect(mUdpSocket, &QUdpSocket::readyRead, this, &SocketHandler::readPendingDatagrams);
+
+    mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
+    //mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 }
 
 void SocketHandler::readPendingDatagrams()
