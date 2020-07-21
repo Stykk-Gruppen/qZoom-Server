@@ -100,10 +100,10 @@ void SocketHandler::readPendingDatagrams()
 }
 */
 
-int SocketHandler::sendDatagram(QByteArray arr, QString participantAddress)
+int SocketHandler::sendDatagram(QByteArray arr)
 {
     //qDebug() << participantAddress;
-    int ret = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(participantAddress), mPort);
+    int ret = mUdpSocket->writeDatagram(arr, arr.size(), mSenderAddress, mPort);
     if(ret < 0)
     {
         qDebug() << mUdpSocket->error();
@@ -224,8 +224,7 @@ void SocketHandler::readPendingDatagrams()
     while (mUdpSocket->hasPendingDatagrams())
     {
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
-        qDebug()<< "datagram sender Addr: " << datagram.senderAddress();
-        qDebug() << "datagram dest addr: " << datagram.destinationAddress();
+        mSenderAddress = datagram.senderAddress();
 
         QByteArray data = datagram.data();
 
@@ -238,8 +237,8 @@ void SocketHandler::readPendingDatagrams()
         QByteArray roomIdArray = QByteArray(data, roomIdLength);
         QString roomId(roomIdArray);
         //QString test = QString(roomIdArray);
-       // qDebug() << "roomId String: " << test;
-       /// qDebug() << roomIdArray;
+        // qDebug() << "roomId String: " << test;
+        /// qDebug() << roomIdArray;
         //char* roomId = roomIdArray.data();
         data.remove(0, roomIdLength);
 
@@ -254,7 +253,7 @@ void SocketHandler::readPendingDatagrams()
 
 
 
-       // qDebug() << "roomId: " << roomId;
+        // qDebug() << "roomId: " << roomId;
         //qDebug() << "streamId: " << streamId;
         //roomId = "Delta";
         //streamId = "Bravo";
@@ -271,8 +270,8 @@ void SocketHandler::readPendingDatagrams()
                 {
                     std::vector<QString> participantData = i.value();
                     participantData[1] = QString::number(QDateTime::currentSecsSinceEpoch());
-                    QtConcurrent::run(this, &SocketHandler::sendDatagram, data, participantData[0]);
-                    qDebug() << "Sending with" << participantData[0] << participantData[1];
+                    QtConcurrent::run(this, &SocketHandler::sendDatagram, data);
+                    qDebug() << "Sending to: " << mSenderAddress<< " with: " << participantData[1];
                 }
             }
             else
