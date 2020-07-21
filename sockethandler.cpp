@@ -3,8 +3,6 @@
 SocketHandler::SocketHandler(QObject *parent) : QObject(parent)
 {
     mPort = 1337;
-    mStreamIdLength = 5;
-    mRoomIdLength = 5;
 
     mTimer = new QTimer(this);
     connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
@@ -225,8 +223,9 @@ void SocketHandler::readPendingDatagrams()
 {
     while (mUdpSocket->hasPendingDatagrams())
     {
-        //QNetworkDatagram datagram = ;
-        QByteArray data = mUdpSocket->receiveDatagram().data();
+        QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
+        qDebug() << datagram.senderAddress();
+        QByteArray data = datagram.data();
 
 
         //roomId is the first x bytes, then streamId
