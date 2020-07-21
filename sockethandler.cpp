@@ -22,8 +22,8 @@ void SocketHandler::initUdpSocket()
     //which means when the socket recieves a packet the function will run.
     connect(mUdpSocket, &QUdpSocket::readyRead, this, &SocketHandler::readPendingDatagrams);
 
-    mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
-    //mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
+    //mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
+    mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 }
 
 /*
@@ -236,7 +236,7 @@ void SocketHandler::readPendingDatagrams()
         QString roomId(roomIdArray);
         //QString test = QString(roomIdArray);
        // qDebug() << "roomId String: " << test;
-        qDebug() << roomIdArray;
+       /// qDebug() << roomIdArray;
         //char* roomId = roomIdArray.data();
         data.remove(0, mRoomIdLength);
 
@@ -248,8 +248,8 @@ void SocketHandler::readPendingDatagrams()
 
 
 
-        qDebug() << "roomId: " << roomId;
-        qDebug() << "streamId: " << streamId;
+       // qDebug() << "roomId: " << roomId;
+        //qDebug() << "streamId: " << streamId;
         //roomId = "Delta";
         //streamId = "Bravo";
         //qDebug() << "roomId: " << roomId;
