@@ -233,7 +233,7 @@ void SocketHandler::readPendingDatagrams()
 
         //roomId is the first x bytes, then streamId
         int roomIdLength = data[0];
-        data.remove(0,1);
+        data.remove(0, 1);
 
         //Finds the roomId header, stores it and removes it from the datagram
         QByteArray roomIdArray = QByteArray(data, roomIdLength);
@@ -245,7 +245,7 @@ void SocketHandler::readPendingDatagrams()
         data.remove(0, roomIdLength);
 
         int streamIdLength = data[0];
-        data.remove(0,1);
+        data.remove(0, 1);
 
         //Finds the streamId header, stores it and removes it from the datagram
         QByteArray streamIdArray = QByteArray(data, streamIdLength);
