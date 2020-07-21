@@ -21,7 +21,8 @@ SOURCES += \
         database.cpp \
         main.cpp \
         participant.cpp \
-        sockethandler.cpp
+        sockethandler.cpp \
+        tcpsockethandler.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -31,4 +32,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     database.h \
     participant.h \
-    sockethandler.h
+    sockethandler.h \
+    tcpsockethandler.h

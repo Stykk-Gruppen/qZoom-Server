@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUdpSocket>
+
 #include <QNetworkDatagram>
 #include <QProcess>
 #include <mutex>
@@ -11,6 +12,7 @@
 #include <QMultiMap>
 #include <QDateTime>
 #include "database.h"
+#include "config.cpp"
 
 class SocketHandler : public QObject, public Database
 {
@@ -18,10 +20,10 @@ class SocketHandler : public QObject, public Database
 public:
     explicit SocketHandler(QObject *parent = nullptr);
     QUdpSocket* mUdpSocket;
-    void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
     int sendDatagram(QByteArray, QString);
-    void initSocket();
+    void initUdpSocket();
     void startRemovalTimer(int seconds);
+    void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
 
 public slots:
     void removeOldParticipantsFromQMap();
@@ -29,14 +31,11 @@ public slots:
 
 private:
     uint16_t mPort;
-    QMultiMap<char*, char*> mRoomsMap;
+    //QMultiMap<char*, char*> mRoomsMap;
     QMultiMap<char*, QMultiMap<char*, std::vector<QString>>> mRoomsMultiMap;
-    QMap <char*, char*> test;
     int mStreamIdLength;
     int mRoomIdLength;
     QTimer* mTimer;
-
-signals:
 
 };
 

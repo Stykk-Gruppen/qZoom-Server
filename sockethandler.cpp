@@ -9,17 +9,21 @@ SocketHandler::SocketHandler(QObject *parent) : QObject(parent)
     mTimer = new QTimer(this);
     //connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
     connect(mTimer, SIGNAL(timeout()), this, SLOT(printQMap()));
-    initSocket();
+    initUdpSocket();
 }
 
-void SocketHandler::initSocket()
+
+
+void SocketHandler::initUdpSocket()
 {
     mUdpSocket = new QUdpSocket(this);
-    mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 
     //Connects readyRead to readPendingDatagram function,
     //which means when the socket recieves a packet the function will run.
     connect(mUdpSocket, &QUdpSocket::readyRead, this, &SocketHandler::readPendingDatagrams);
+
+    mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
+    //mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 }
 
 /*
@@ -108,8 +112,10 @@ int SocketHandler::sendDatagram(QByteArray arr, QString participantAddress)
     return ret;
 }
 
+
 void SocketHandler::removeOldParticipantsFromQMap()
 {
+    /*
     int counter = 0;
     QMultiMap<char*, char*>::iterator i;
     for (i = mRoomsMap.begin(); i != mRoomsMap.end(); i++)
@@ -142,7 +148,9 @@ void SocketHandler::removeOldParticipantsFromQMap()
         }
     }
     qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed" << counter << "participant(s) from the QMap.";
+    */
 }
+
 
 void SocketHandler::startRemovalTimer(int seconds)
 {
