@@ -3,8 +3,6 @@
 SocketHandler::SocketHandler(QObject *parent) : QObject(parent)
 {
     mPort = 1337;
-    mStreamIdLength = 5;
-    mRoomIdLength = 5;
 
     mTimer = new QTimer(this);
     connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
@@ -22,8 +20,8 @@ void SocketHandler::initUdpSocket()
     //which means when the socket recieves a packet the function will run.
     connect(mUdpSocket, &QUdpSocket::readyRead, this, &SocketHandler::readPendingDatagrams);
 
-    mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
-    //mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
+    //mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
+    mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 }
 
 /*
@@ -102,9 +100,10 @@ void SocketHandler::readPendingDatagrams()
 }
 */
 
-int SocketHandler::sendDatagram(QByteArray arr, QString participantAddress)
+int SocketHandler::sendDatagram(QByteArray arr)
 {
-    int ret = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(participantAddress), mPort);
+    //qDebug() << participantAddress;
+    int ret = mUdpSocket->writeDatagram(arr, arr.size(), mSenderAddress, mPort);
     if(ret < 0)
     {
         qDebug() << mUdpSocket->error();
@@ -226,32 +225,38 @@ void SocketHandler::readPendingDatagrams()
 {
     while (mUdpSocket->hasPendingDatagrams())
     {
-        //QNetworkDatagram datagram = ;
-        QByteArray data = mUdpSocket->receiveDatagram().data();
+        QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
+        mSenderAddress = datagram.senderAddress();
+
+        QByteArray data = datagram.data();
 
 
         //roomId is the first x bytes, then streamId
-
+        int roomIdLength = data[0];
+        data.remove(0,1);
 
         //Finds the roomId header, stores it and removes it from the datagram
-        QByteArray roomIdArray = QByteArray(data, mRoomIdLength);
+        QByteArray roomIdArray = QByteArray(data, roomIdLength);
         QString roomId(roomIdArray);
         //QString test = QString(roomIdArray);
-       // qDebug() << "roomId String: " << test;
-        qDebug() << roomIdArray;
+        // qDebug() << "roomId String: " << test;
+        /// qDebug() << roomIdArray;
         //char* roomId = roomIdArray.data();
-        data.remove(0, mRoomIdLength);
+        data.remove(0, roomIdLength);
+
+        int streamIdLength = data[0];
+        data.remove(0,1);
 
         //Finds the streamId header, stores it and removes it from the datagram
-        QByteArray streamIdArray = QByteArray(data, mStreamIdLength);
+        QByteArray streamIdArray = QByteArray(data, streamIdLength);
         QString streamId(streamIdArray);
         //char* streamId = streamIdArray.data();
-        data.remove(0, mStreamIdLength);
+        data.remove(0, streamIdLength);
 
 
 
-        qDebug() << "roomId: " << roomId;
-        qDebug() << "streamId: " << streamId;
+        // qDebug() << "roomId: " << roomId;
+        //qDebug() << "streamId: " << streamId;
         //roomId = "Delta";
         //streamId = "Bravo";
         //qDebug() << "roomId: " << roomId;
@@ -267,8 +272,8 @@ void SocketHandler::readPendingDatagrams()
                 {
                     std::vector<QString> participantData = i.value();
                     participantData[1] = QString::number(QDateTime::currentSecsSinceEpoch());
-                    QtConcurrent::run(this, &SocketHandler::sendDatagram, data, participantData[0]);
-                    qDebug() << "Sending with" << participantData[0] << participantData[1];
+                    QtConcurrent::run(this, &SocketHandler::sendDatagram, data);
+                    qDebug() << "Sending to: " << mSenderAddress<< " with: " << participantData[1];
                 }
             }
             else

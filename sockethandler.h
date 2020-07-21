@@ -20,7 +20,7 @@ class SocketHandler : public QObject, public Database
 public:
     explicit SocketHandler(QObject *parent = nullptr);
     QUdpSocket* mUdpSocket;
-    int sendDatagram(QByteArray, QString);
+    int sendDatagram(QByteArray);
     void initUdpSocket();
     void startRemovalTimer(int seconds);
     void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
@@ -30,11 +30,12 @@ public slots:
     void printQMap();
 
 private:
+    QHostAddress mSenderAddress;
     uint16_t mPort;
     //QMultiMap<char*, char*> mRoomsMap;
     QMultiMap<QString, QMultiMap<QString, std::vector<QString>>> mRoomsMultiMap;
-    int mStreamIdLength;
-    int mRoomIdLength;
+    //int mStreamIdLength;
+    //int mRoomIdLength;
     QTimer* mTimer;
 
 };
