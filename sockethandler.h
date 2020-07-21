@@ -33,8 +33,8 @@ private:
     uint16_t mPort;
     //QMultiMap<char*, char*> mRoomsMap;
     QMultiMap<QString, QMultiMap<QString, std::vector<QString>>> mRoomsMultiMap;
-    int mStreamIdLength;
-    int mRoomIdLength;
+    //int mStreamIdLength;
+    //int mRoomIdLength;
     QTimer* mTimer;
 
 };
