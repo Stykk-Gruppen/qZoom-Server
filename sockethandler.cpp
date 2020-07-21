@@ -182,7 +182,9 @@ void SocketHandler::removeOldParticipantsFromQMap()
                 {
                     qDebug() << "Failed Query" << Q_FUNC_INFO;
                 }
-                j->clear();
+                //i->remove(j.key());
+                i->erase(j);
+                j--;
                 qMapParticipantsCounter++;
                 /*
                 if (i->isEmpty())
@@ -195,7 +197,7 @@ void SocketHandler::removeOldParticipantsFromQMap()
         }
     }
     qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed"
-             << qMapParticipantsCounter << "(QMap P)" << qMapRoomsCounter << "(QMap R)" << databaseCounter << "(Database.";
+             << qMapParticipantsCounter << "(QMap P)" << qMapRoomsCounter << "(QMap R)" << databaseCounter << "(Database).";
 }
 
 

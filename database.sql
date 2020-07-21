@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS user
 CREATE TABLE IF NOT EXISTS room
 (
 	id VARCHAR(32) NOT NULL PRIMARY KEY,
-	host INT NOT NULL,
+	host INT UNIQUE NOT NULL,
 	password VARCHAR(255)
 );
 
@@ -28,12 +28,7 @@ CREATE TABLE IF NOT EXISTS roomSession
 INSERT INTO user (streamId, username, password)
 VALUES ("Alpha", "stian", "123"),
 ("Bravo", "tarald", "123"),
-("Charl", "kent", "123");
+("Charlie", "kent", "123");
 
 INSERT INTO room (id, host, password)
 VALUES ("Delta", 1, "123");
-
-INSERT INTO roomSession (roomId, userId, ipAddress)
-VALUES ("Delta", 1, "92.220.136.246"),
-("Delta", 2, "158.36.165.235"),
-("Delta", 3, "79.160.58.120");
