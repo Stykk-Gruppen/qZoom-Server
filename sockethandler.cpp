@@ -7,8 +7,8 @@ SocketHandler::SocketHandler(QObject *parent) : QObject(parent)
     mRoomIdLength = 5;
 
     mTimer = new QTimer(this);
-    //connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
-    connect(mTimer, SIGNAL(timeout()), this, SLOT(printQMap()));
+    connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
+    //connect(mTimer, SIGNAL(timeout()), this, SLOT(printQMap()));
     initUdpSocket();
 }
 
@@ -112,10 +112,10 @@ int SocketHandler::sendDatagram(QByteArray arr, QString participantAddress)
     return ret;
 }
 
-
+/*
 void SocketHandler::removeOldParticipantsFromQMap()
 {
-    /*
+
     int counter = 0;
     QMultiMap<char*, char*>::iterator i;
     for (i = mRoomsMap.begin(); i != mRoomsMap.end(); i++)
@@ -148,7 +148,54 @@ void SocketHandler::removeOldParticipantsFromQMap()
         }
     }
     qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed" << counter << "participant(s) from the QMap.";
-    */
+
+}
+*/
+
+void SocketHandler::removeOldParticipantsFromQMap()
+{
+    int qMapParticipantsCounter = 0;
+    int qMapRoomsCounter = 0;
+    int databaseCounter = 0;
+    QMultiMap<char*, QMultiMap<char*, std::vector<QString>>>::iterator i;
+    for (i = mRoomsMultiMap.begin(); i != mRoomsMultiMap.end(); i++)
+    {
+        QMultiMap<char*, std::vector<QString>>::iterator j;
+        for (j = i->begin(); j != i->end(); j++)
+        {
+            std::vector<QString> tempVector = j.value();
+            int participantTimestampUnix = tempVector[1].toInt();
+            QDateTime participantTimestamp;
+            participantTimestamp.setTime_t(participantTimestampUnix);
+
+            if (participantTimestamp.secsTo(QDateTime::currentDateTime()) > 10) //If the participant hasn't been active in the last minute
+            {
+                QSqlQuery q(Database::mDb);
+                q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND roomId = :roomId");
+                q.bindValue(":streamId", j.key());
+                q.bindValue(":roomId", i.key());
+                if (q.exec())
+                {
+                    databaseCounter++;
+                }
+                else
+                {
+                    qDebug() << "Failed Query" << Q_FUNC_INFO;
+                }
+                j->clear();
+                qMapParticipantsCounter++;
+                /*
+                if (i->isEmpty())
+                {
+                    mRoomsMultiMap.remove(i.key());
+                    qMapRoomsCounter++;
+                }
+                */
+            }
+        }
+    }
+    qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed"
+             << qMapParticipantsCounter << "(QMap P)" << qMapRoomsCounter << "(QMap R)" << databaseCounter << "(Database) .";
 }
 
 
@@ -224,7 +271,7 @@ void SocketHandler::readPendingDatagrams()
                     mRoomsMultiMap.insert(roomId, tempMap);
 
                     //mRoomsMap.insert(roomId, &participantData[0]);
-                    qDebug() << "Added streamId, ipAddress and timestamp: " << tempVector[0] << tempVector[1] << " to the QMap after confirming with database";
+                    qDebug() << "Added streamId, ipAddress and timestamp:" << tempVector[0] << tempVector[1] << "to the QMap after confirming with database";
                 }
                 else
                 {
