@@ -1,6 +1,6 @@
 #include "tcpsockethandler.h"
 
-TcpSocketHandler::TcpSocketHandler()
+TcpSocketHandler::TcpSocketHandler(QObject *parent) : QObject(parent)
 {
      initTcpServer();
      mPort = 1337;
@@ -10,7 +10,7 @@ TcpSocketHandler::TcpSocketHandler()
 void TcpSocketHandler::initTcpServer()
 {
     mTcpServer = new QTcpServer();
-    //connect(mTcpServer, &QTcpServer::newConnection, this, &TcpSocketHandler::acceptTcpConnection);
+   connect(mTcpServer, &QTcpServer::newConnection, this, &TcpSocketHandler::acceptTcpConnection);
     mTcpServer->listen(QHostAddress::Any, mPort);
 
 }
@@ -24,9 +24,9 @@ void TcpSocketHandler::acceptTcpConnection()
         qDebug() << "Error: got invalid pending connection!";
     }
 
-    //connect(tcpServerConnection, &QIODevice::readyRead, this, &TcpSocketHandler::readTcpPacket);
+  connect(tcpServerConnection, &QIODevice::readyRead, this, &TcpSocketHandler::readTcpPacket);
     //connect(tcpServerConnection, &QAbstractSocket::errorOccurred, this, &SocketHandler::displayError);
-   // connect(tcpServerConnection, &QTcpSocket::disconnected, tcpServerConnection, &QTcpSocket::deleteLater);
+    connect(tcpServerConnection, &QTcpSocket::disconnected, tcpServerConnection, &QTcpSocket::deleteLater);
 
     mTcpServer->close();
 }

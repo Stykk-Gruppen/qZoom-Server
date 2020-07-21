@@ -2,17 +2,14 @@
 #define TCPSOCKETHANDLER_H
 
 #include <QObject>
-
 #include <QTcpServer>
 #include <QTcpSocket>
 
-
-
-class TcpSocketHandler
+class TcpSocketHandler: public QObject
 {
     Q_OBJECT
 public:
-    TcpSocketHandler();
+    explicit TcpSocketHandler(QObject *parent = nullptr);;
     QTcpServer* mTcpServer;
     uint16_t mPort;
     void initTcpServer();
