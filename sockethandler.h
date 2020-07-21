@@ -25,10 +25,13 @@ public:
 
 public slots:
     void removeOldParticipantsFromQMap();
+    void printQMap();
 
 private:
     uint16_t mPort;
     QMultiMap<char*, char*> mRoomsMap;
+    QMultiMap<char*, QMultiMap<char*, std::vector<QString>>> mRoomsMultiMap;
+    QMap <char*, char*> test;
     int mStreamIdLength;
     int mRoomIdLength;
     QTimer* mTimer;

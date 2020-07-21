@@ -20,6 +20,7 @@ SOURCES += \
         config.cpp \
         database.cpp \
         main.cpp \
+        participant.cpp \
         sockethandler.cpp
 
 # Default rules for deployment.
@@ -29,4 +30,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     database.h \
+    participant.h \
     sockethandler.h

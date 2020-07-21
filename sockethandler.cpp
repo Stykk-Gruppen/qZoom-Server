@@ -7,7 +7,8 @@ SocketHandler::SocketHandler(QObject *parent) : QObject(parent)
     mRoomIdLength = 5;
 
     mTimer = new QTimer(this);
-    connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
+    //connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
+    connect(mTimer, SIGNAL(timeout()), this, SLOT(printQMap()));
     initSocket();
 }
 
@@ -21,6 +22,7 @@ void SocketHandler::initSocket()
     connect(mUdpSocket, &QUdpSocket::readyRead, this, &SocketHandler::readPendingDatagrams);
 }
 
+/*
 void SocketHandler::readPendingDatagrams()
 {
     while (mUdpSocket->hasPendingDatagrams())
@@ -28,9 +30,13 @@ void SocketHandler::readPendingDatagrams()
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
         QByteArray temp = QByteArray(datagram.data(), mRoomIdLength);
 
+        /*
         char* roomId = QByteArray(temp.data(), mRoomIdLength).data();
         datagram.data().remove(0, mRoomIdLength);
         char* streamId = QByteArray(datagram.data(), mStreamIdLength).data();
+
+        char* roomId = "Delta";
+        char* streamId = "Alpha";
 
         if(mRoomsMap.contains(roomId))
         {
@@ -68,8 +74,9 @@ void SocketHandler::readPendingDatagrams()
         else
         {
             QSqlQuery q(Database::mDb);
-            q.prepare("SELECT rs.roomId, rs.ipAddress, u.streamId FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id");
+            q.prepare("SELECT rs.roomId, rs.ipAddress, u.streamId FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
             q.bindValue(":roomId", roomId);
+            q.bindValue(":streamId", streamId);
             if (q.exec() && q.size() > 0)
             {
                 while (q.next())
@@ -89,6 +96,7 @@ void SocketHandler::readPendingDatagrams()
         }
     }
 }
+*/
 
 int SocketHandler::sendDatagram(QByteArray arr, QString participantAddress)
 {
@@ -142,7 +150,114 @@ void SocketHandler::startRemovalTimer(int seconds)
     mTimer->start(milliseconds);
 }
 
+void SocketHandler::printQMap()
+{
+    qDebug() << "Printing QMap...";
+    QMultiMap<char*, QMultiMap<char*, std::vector<QString>>>::iterator i;
+    for (i = mRoomsMultiMap.begin(); i != mRoomsMultiMap.end(); i++)
+    {
+        QMultiMap<char*, std::vector<QString>>::iterator j;
+        for (j = i->begin(); j != i->end(); j++)
+        {
+            qDebug() << i.value() << j.value();
+        }
+    }
+    qDebug() << "Done printing QMap";
+}
 
+void SocketHandler::readPendingDatagrams()
+{
+    while (mUdpSocket->hasPendingDatagrams())
+    {
+        QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
+        QByteArray temp = QByteArray(datagram.data(), mRoomIdLength);
+
+        /*
+        char* roomId = QByteArray(temp.data(), mRoomIdLength).data();
+        datagram.data().remove(0, mRoomIdLength);
+        char* streamId = QByteArray(datagram.data(), mStreamIdLength).data();
+        */
+        char* roomId = "Delta";
+        char* streamId = "Alpha";
+
+        if(mRoomsMultiMap.contains(roomId))
+        {
+            QMultiMap<char*, std::vector<QString>> roomParticipants = mRoomsMultiMap.value(roomId);
+            if(mRoomsMultiMap.value(roomId).contains(streamId))
+            {
+                QMultiMap<char*, std::vector<QString>>::iterator i;
+                for (i = roomParticipants.begin(); i != roomParticipants.end(); i++)
+                {
+                    std::vector<QString> participantData = i.value();
+                    participantData[1] = QString::number(QDateTime::currentSecsSinceEpoch());
+                    QtConcurrent::run(this, &SocketHandler::sendDatagram, datagram.data(), participantData[0]);
+                    qDebug() << "Sending with" << participantData[0] << participantData[1];
+                }
+            }
+            else
+            {
+                QSqlQuery q(Database::mDb);
+                q.prepare("SELECT roomSession.ipAddress FROM roomSession, user WHERE roomSession.userId = user.id AND user.streamId = :streamId");
+                q.bindValue(":streamId", streamId);
+                if (q.exec() && q.size() > 0)
+                {
+                    q.next();
+                    /*
+                    std::string participantData = streamId;
+                    //participantData += streamId;
+                    participantData += std::to_string(QDateTime::currentSecsSinceEpoch());
+                    participantData += q.value(0).toString().toStdString();
+                    */
+
+                    std::vector<QString> tempVector = {q.value(0).toString(), QString::number(QDateTime::currentSecsSinceEpoch())};
+                    QMultiMap<char*, std::vector<QString>> tempMap;
+                    tempMap.insert(streamId, tempVector);
+
+                    mRoomsMultiMap.insert(roomId, tempMap);
+
+                    //mRoomsMap.insert(roomId, &participantData[0]);
+                    qDebug() << "Added streamId, ipAddress and timestamp: " << tempVector[0] << tempVector[1] << " to the QMap after confirming with database";
+                }
+                else
+                {
+                    qDebug() << "Could not find streamID in roomSession (Database)";
+                }
+            }
+        }
+        else
+        {
+            QSqlQuery q(Database::mDb);
+            q.prepare("SELECT rs.ipAddress FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
+            q.bindValue(":roomId", roomId);
+            q.bindValue(":streamId", streamId);
+            if (q.exec() && q.size() > 0)
+            {
+                while (q.next())
+                {
+                    /*
+                    std::string participantData = "";
+                    participantData += q.value(2).toString().toStdString();
+                    participantData += std::to_string(QDateTime::currentSecsSinceEpoch());
+                    participantData += q.value(1).toString().toStdString();
+                    mRoomsMap.insert(roomId, &participantData[0]);
+                    qDebug() << "Added: " << &participantData[0] << " to QMap";
+                    */
+
+                    std::vector<QString> tempVector = {q.value(0).toString(), QString::number(QDateTime::currentSecsSinceEpoch())};
+                    QMultiMap<char*, std::vector<QString>> tempMap;
+                    tempMap.insert(streamId, tempVector);
+
+                    mRoomsMultiMap.insert(roomId, tempMap);
+                    qDebug() << "Added: " << tempVector[0] << " to QMap";
+                }
+            }
+            else
+            {
+                qDebug() << "Could not find roomId in Database";
+            }
+        }
+    }
+}
 
 
 

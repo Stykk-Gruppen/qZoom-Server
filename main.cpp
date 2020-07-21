@@ -3,7 +3,6 @@
 #include <iostream>
 
 
-
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -24,6 +23,8 @@ int main(int argc, char *argv[])
     SocketHandler* sh = new SocketHandler();
     int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
     sh->startRemovalTimer(oldParticipantsRemovalIntervalValue);
+
+    //sh->printQMap();
 
     return a.exec();
 }
