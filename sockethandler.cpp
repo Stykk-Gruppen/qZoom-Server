@@ -157,10 +157,10 @@ void SocketHandler::removeOldParticipantsFromQMap()
     int qMapParticipantsCounter = 0;
     int qMapRoomsCounter = 0;
     int databaseCounter = 0;
-    QMultiMap<char*, QMultiMap<char*, std::vector<QString>>>::iterator i;
+    QMultiMap<QString, QMultiMap<QString, std::vector<QString>>>::iterator i;
     for (i = mRoomsMultiMap.begin(); i != mRoomsMultiMap.end(); i++)
     {
-        QMultiMap<char*, std::vector<QString>>::iterator j;
+        QMultiMap<QString, std::vector<QString>>::iterator j;
         for (j = i->begin(); j != i->end(); j++)
         {
             std::vector<QString> tempVector = j.value();
@@ -195,7 +195,7 @@ void SocketHandler::removeOldParticipantsFromQMap()
         }
     }
     qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed"
-             << qMapParticipantsCounter << "(QMap P)" << qMapRoomsCounter << "(QMap R)" << databaseCounter << "(Database) .";
+             << qMapParticipantsCounter << "(QMap P)" << qMapRoomsCounter << "(QMap R)" << databaseCounter << "(Database.";
 }
 
 
