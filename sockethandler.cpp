@@ -102,7 +102,7 @@ void SocketHandler::readPendingDatagrams()
 
 int SocketHandler::sendDatagram(QByteArray arr, QString participantAddress)
 {
-    qDebug() << participantAddress;
+    //qDebug() << participantAddress;
     int ret = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(participantAddress), mPort);
     if(ret < 0)
     {
@@ -224,7 +224,9 @@ void SocketHandler::readPendingDatagrams()
     while (mUdpSocket->hasPendingDatagrams())
     {
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
-        qDebug() << datagram.senderAddress();
+        qDebug()<< "datagram sender Addr: " << datagram.senderAddress();
+        qDebug() << "datagram dest addr: " << datagram.destinationAddress();
+
         QByteArray data = datagram.data();
 
 
