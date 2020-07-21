@@ -32,7 +32,7 @@ public slots:
 private:
     uint16_t mPort;
     //QMultiMap<char*, char*> mRoomsMap;
-    QMultiMap<char*, QMultiMap<char*, std::vector<QString>>> mRoomsMultiMap;
+    QMultiMap<QString, QMultiMap<QString, std::vector<QString>>> mRoomsMultiMap;
     int mStreamIdLength;
     int mRoomIdLength;
     QTimer* mTimer;
