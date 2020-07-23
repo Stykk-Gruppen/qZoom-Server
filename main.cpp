@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     //udpSocket->startRemovalTimer(oldParticipantsRemovalIntervalValue);
 
     //sh->printQMap();
+    udpSocket->printMap();
 
     return a.exec();
 }

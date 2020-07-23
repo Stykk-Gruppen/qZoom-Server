@@ -18,7 +18,7 @@ class RoomsHandler : public Database
 public:
     RoomsHandler();
     void startRemovalTimer(int seconds);
-    void printQMap();
+    void printMap();
 
 public slots:
     //void removeOldParticipantsFromQMap();

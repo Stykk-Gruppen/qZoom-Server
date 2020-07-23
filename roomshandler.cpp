@@ -3,7 +3,7 @@
 RoomsHandler::RoomsHandler()
 {
     //connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
-    //QObject::connect(mTimer, &QTimer::timeout, removeOldParticipantsFromQMap);
+    //QObject::connect(mTimer, &QTimer::timeout, [=](), removeOldParticipantsFromQMap);
 }
 
 void RoomsHandler::removeOldParticipantsFromQMap()
@@ -66,8 +66,9 @@ void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAdd
     qDebug() << "Added streamId, ipAddress and timestamp:" << tempVector[0] << tempVector[1] << "to the QMap after confirming with database";
 }
 
-void RoomsHandler::printQMap()
+void RoomsHandler::printMap()
 {
+    qDebug() << "Printing start";
     std::map<QString, std::map<QString, std::vector<QString>>>::iterator i;
     for (i = mMap.begin(); i != mMap.end(); i++)
     {
@@ -81,6 +82,7 @@ void RoomsHandler::printQMap()
             }
         }
     }
+    qDebug() << "Printing end";
 }
 
 void RoomsHandler::updateTimestamp(QString roomId, QString streamId)
