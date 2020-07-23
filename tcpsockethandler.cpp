@@ -1,41 +1,28 @@
 #include "tcpsockethandler.h"
 
-TcpSocketHandler::TcpSocketHandler(QObject *parent) : QObject(parent)
+TcpSocketHandler::TcpSocketHandler(uint16_t _port, QObject *parent) : QObject(parent)
 {
-     initTcpServer();
-     mPort = 1337;
+     initSocket();
+     mPort = _port;
+}
+
+void TcpSocketHandler::initSocket()
+{
+    mTcpSocket = new QTcpSocket(this);
+
+    //Connects readyRead to readPendingDatagram function,
+    //which means when the socket recieves a packet the function will run.
+    //connect(mTcpSocket, &QTcpSocket::readyRead, this, &TcpSocketHandler::readPendingDatagrams);
+
+    //mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
+    //mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
+}
+
+void TcpSocketHandler::sendHeader(QHostAddress receiverAddress, QByteArray data)
+{
+    mTcpSocket->bind(receiverAddress, mPort, QAbstractSocket::ShareAddress);
+
+    mTcpSocket->write(data, data.length());
 }
 
 
-void TcpSocketHandler::initTcpServer()
-{
-    mTcpServer = new QTcpServer();
-   connect(mTcpServer, &QTcpServer::newConnection, this, &TcpSocketHandler::acceptTcpConnection);
-    mTcpServer->listen(QHostAddress::Any, mPort);
-
-}
-
-
-void TcpSocketHandler::acceptTcpConnection()
-{
-
-    tcpServerConnection = mTcpServer->nextPendingConnection();
-    if (!tcpServerConnection) {
-        qDebug() << "Error: got invalid pending connection!";
-    }
-
-  connect(tcpServerConnection, &QIODevice::readyRead, this, &TcpSocketHandler::readTcpPacket);
-    //connect(tcpServerConnection, &QAbstractSocket::errorOccurred, this, &SocketHandler::displayError);
-    connect(tcpServerConnection, &QTcpSocket::disconnected, tcpServerConnection, &QTcpSocket::deleteLater);
-
-    mTcpServer->close();
-}
-void TcpSocketHandler::readTcpPacket()
-{
-       /*QByteArray block;
-       QDataStream out(&block, QIODevice::WriteOnly);
-       out.setVersion(QDataStream::Qt_5_10);
-       qDebug() << "sending password";
-       //TODO verify password and send mysql password back
-       out << "dbPassword";*/
-}
