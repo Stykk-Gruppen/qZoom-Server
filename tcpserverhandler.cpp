@@ -3,7 +3,7 @@
 TcpServerHandler::TcpServerHandler(QObject *parent) : QObject(parent)
 {
      initTcpServer();
-     mPort = 1337;
+     mPort = 1338;
 }
 
 void TcpServerHandler::initTcpServer()
@@ -30,12 +30,6 @@ void TcpServerHandler::acceptTcpConnection()
 
 void TcpServerHandler::readTcpPacket()
 {
-       /*QByteArray block;
-       QDataStream out(&block, QIODevice::WriteOnly);
-       out.setVersion(QDataStream::Qt_5_10);
-       qDebug() << "sending password";
-       //TODO verify password and send mysql password back
-       out << "dbPassword";*/
     QByteArray originalData = mTcpServerConnection->readAll();
     QByteArray data = originalData;
 
