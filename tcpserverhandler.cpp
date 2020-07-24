@@ -54,10 +54,15 @@ void TcpServerHandler::readTcpPacket()
     //char* streamId = streamIdArray.data();
     data.remove(0, streamIdLength);
 
+    qDebug() << "streamId: " << streamId;
+    qDebug() << "roomId: " << roomId;
+
     if(mMap.count(roomId))
     {
+        qDebug() << "found key: " << roomId << " in first map";
         if (mMap[roomId].count(roomId))
         {
+            qDebug() << "found key: " << roomId << " in second map";
             std::map<QString, std::vector<QString>>::iterator i;
             for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
             {
