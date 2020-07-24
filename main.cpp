@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     //SocketHandler* sh = new SocketHandler();
     UdpSocketHandler* udpSocket = new UdpSocketHandler();
     TcpServerHandler* tcpServer = new TcpServerHandler();
+    tcpServer->initTcpServer();
     int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
     //udpSocket->startRemovalTimer(oldParticipantsRemovalIntervalValue);
 
