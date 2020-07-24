@@ -46,13 +46,13 @@ void TcpServerHandler::readTcpPacket()
     data.remove(0, roomIdLength);
 
     int streamIdLength = data[0];
-    //data.remove(0, 1);
+    data.remove(0, 1);
 
     //Finds the streamId header, stores it and removes it from the datagram
     QByteArray streamIdArray = QByteArray(data, streamIdLength);
     QString streamId(streamIdArray);
     //char* streamId = streamIdArray.data();
-    //data.remove(0, streamIdLength);
+    data.remove(0, streamIdLength);
 
     if(mMap.count(roomId))
     {
