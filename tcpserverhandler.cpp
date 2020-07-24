@@ -19,6 +19,8 @@ void TcpServerHandler::acceptTcpConnection()
     mTcpServerConnection = mTcpServer->nextPendingConnection();
     if (!mTcpServerConnection) {
         qDebug() << "Error: got invalid pending connection!";
+    }else {
+        qDebug() << "connected";
     }
 
     connect(mTcpServerConnection, &QIODevice::readyRead, this, &TcpServerHandler::readTcpPacket);

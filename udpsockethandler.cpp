@@ -12,10 +12,10 @@ void UdpSocketHandler::initSocket()
 
     //Connects readyRead to readPendingDatagram function,
     //which means when the socket recieves a packet the function will run.
-    connect(mUdpSocket, &QUdpSocket::readyRead, this, &UdpSocketHandler::readPendingDatagrams);
+    //connect(mUdpSocket, &QUdpSocket::readyRead, this, &UdpSocketHandler::readPendingDatagrams);
 
     //mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
-    mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
+    //mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 }
 
 int UdpSocketHandler::sendDatagram(QByteArray arr)
