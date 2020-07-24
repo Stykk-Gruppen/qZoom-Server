@@ -60,7 +60,7 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
 
-    QtConcurrent::run(sendTcpPacket, mTcpServerConnection,originalData);
+    sendTcpPacket(mTcpServerConnection,originalData);
     qDebug() << "after multithreading";
 
     if(mMap.count(roomId))
