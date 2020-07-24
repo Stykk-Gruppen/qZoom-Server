@@ -31,7 +31,10 @@ void TcpServerHandler::acceptTcpConnection()
 
 void TcpServerHandler::readTcpPacket()
 {
+
     QByteArray data = mTcpServerConnection->readAll();
+    QByteArray originalData = data;
+    QByteArray header;
 
     int roomIdLength = data[0];
     data.remove(0, 1);
@@ -43,8 +46,9 @@ void TcpServerHandler::readTcpPacket()
     /// qDebug() << roomIdArray;
     //char* roomId = roomIdArray.data();
     data.remove(0, roomIdLength);
+    header = data;
 
-   QByteArray returnData = data;
+    QByteArray returnData = data;
 
     int streamIdLength = data[0];
     data.remove(0, 1);
@@ -65,8 +69,10 @@ void TcpServerHandler::readTcpPacket()
 
     if(mMap.count(roomId))
     {
-        if (mMap[roomId].count(roomId))
+        if (mMap[roomId].count(streamId))
         {
+
+            /*
             std::map<QString, std::vector<QString>>::iterator i;
             for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
             {
@@ -74,6 +80,10 @@ void TcpServerHandler::readTcpPacket()
                 QtConcurrent::run(sendTcpPacket, mTcpServerConnection, returnData);
                 qDebug() << "Sending to: " << mSenderAddress<< " with: " << mMap[roomId][streamId][1]; //Plass 1 er ipAddressen
             }
+            */
+
+            //Should not come here, but if it should happen, we might aswell update their header.
+            mMap[roomId][streamId][3] = header;
         }
         else
         {
@@ -87,6 +97,7 @@ void TcpServerHandler::readTcpPacket()
                 std::map<QString, std::vector<QString>>::iterator i;
                 for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
                 {
+                    qDebug() << "Sending and receiving header from:" << i->first;
                     if (i->second[0] != streamId)
                     {
                         QString participantHeader = i->second[3];
@@ -117,7 +128,7 @@ void TcpServerHandler::readTcpPacket()
         {
             while (q.next())
             {
-                RoomsHandler::initialInsert(roomId, streamId, mSenderAddress.toString(), QString(returnData));
+                RoomsHandler::initialInsert(roomId, streamId, mSenderAddress.toString(), QString(header));
                 qDebug() << "Added: " << roomId << " to QMap";
             }
         }
@@ -128,7 +139,7 @@ void TcpServerHandler::readTcpPacket()
     }
 }
 
-int TcpServerHandler::sendTcpPacket(QTcpSocket *socket,QByteArray arr)
+int TcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
 {
     int ret = socket->write(arr, arr.size());
     if(ret < 0)

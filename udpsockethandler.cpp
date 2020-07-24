@@ -39,6 +39,7 @@ void UdpSocketHandler::readPendingDatagrams()
 
         QByteArray originalData = datagram.data();
         QByteArray data = originalData;
+        QByteArray returnData;
 
 
         //roomId is the first x bytes, then streamId
@@ -53,6 +54,7 @@ void UdpSocketHandler::readPendingDatagrams()
         /// qDebug() << roomIdArray;
         //char* roomId = roomIdArray.data();
         data.remove(0, roomIdLength);
+        returnData = data;
 
         int streamIdLength = data[0];
         data.remove(0, 1);
@@ -71,7 +73,9 @@ void UdpSocketHandler::readPendingDatagrams()
         //streamId = "Bravo";
         //qDebug() << "roomId: " << roomId;
         //qDebug() << "streamId: " << streamId;
-        QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, originalData);
+
+        //QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, originalData);
+        QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
         if(mMap.count(roomId))
         {
             if (mMap[roomId].count(streamId))
@@ -80,8 +84,7 @@ void UdpSocketHandler::readPendingDatagrams()
                 std::map<QString, std::vector<QString>>::iterator i;
                 for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
                 {
-
-                    QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, originalData);
+                    QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
                     qDebug() << "Sending to: " << mSenderAddress << " from: " << mMap[roomId][streamId][1] << i->first;
                 }
             }
