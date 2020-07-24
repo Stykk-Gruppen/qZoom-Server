@@ -15,7 +15,6 @@ void TcpServerHandler::initTcpServer()
 
 void TcpServerHandler::acceptTcpConnection()
 {
-
     mTcpServerConnection = mTcpServer->nextPendingConnection();
     if (!mTcpServerConnection)
     {

@@ -2,29 +2,30 @@
 
 RoomsHandler::RoomsHandler()
 {
-    //connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
-    //QObject::connect(mTimer, &QTimer::timeout, [=](), removeOldParticipantsFromQMap);
+
 }
 
 void RoomsHandler::removeOldParticipantsFromQMap()
 {
-    int qMapParticipantsCounter = 0;
-    int qMapRoomsCounter = 0;
+    Database* db = new Database(); //Each thread requires their own database connection.
+    int mapParticipantsCounter = 0;
+    int mapRoomsCounter = 0;
     int databaseCounter = 0;
-    std::map<QString, std::map<QString, std::vector<QString>>>::iterator i;
-    for (i = mMap.begin(); i != mMap.end(); i++)
+    std::map<QString, std::map<QString, std::vector<QString>>>::iterator i = mMap.begin();
+    while (i != mMap.end())
     {
-        std::map<QString, std::vector<QString>>::iterator j;
-        for (j = i->second.begin(); j != i->second.end(); j++)
+        std::map<QString, std::vector<QString>>::iterator j = i->second.begin();
+        while (j != i->second.end())
         {
             std::vector<QString> tempVector = j->second;
             int participantTimestampUnix = tempVector[1].toInt();
             QDateTime participantTimestamp;
             participantTimestamp.setTime_t(participantTimestampUnix);
 
-            if (participantTimestamp.secsTo(QDateTime::currentDateTime()) > 10) //If the participant hasn't been active in the last minute
+            if ((participantTimestamp.secsTo(QDateTime::currentDateTime()) > 10)) //If the participant hasn't been active in the last minute
             {
-                QSqlQuery q(Database::mDb);
+
+                QSqlQuery q(db->mDb);
                 q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND roomId = :roomId");
                 q.bindValue(":streamId", j->first);
                 q.bindValue(":roomId", i->first);
@@ -34,29 +35,30 @@ void RoomsHandler::removeOldParticipantsFromQMap()
                 }
                 else
                 {
-                    qDebug() << "Failed Query" << Q_FUNC_INFO;
+                    //qDebug() << "Failed Query" << Q_FUNC_INFO;
                 }
-                mMap[i->first].erase(j->first);
-                j--;
-                qMapParticipantsCounter++;
-                /*
-                if (i->isEmpty())
-                {
-                    mRoomsMultiMap.remove(i.key());
-                    qMapRoomsCounter++;
-                }
-                */
+
+                j = mMap[i->first].erase(j);
+                mapParticipantsCounter++;
             }
+            else
+            {
+                ++j;
+            }
+        }
+        if (i->second.size() == 0)
+        {
+            i = mMap.erase(i);
+            mapRoomsCounter++;
+        }
+        else
+        {
+            ++i;
         }
     }
     qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed"
-             << qMapParticipantsCounter << "(QMap P)" << qMapRoomsCounter << "(QMap R)" << databaseCounter << "(Database).";
-}
-
-void RoomsHandler::startRemovalTimer(int seconds)
-{
-    int milliseconds = seconds * 1000;
-    mTimer->start(milliseconds);
+             << mapParticipantsCounter << "(QMap P)" << mapRoomsCounter << "(QMap R)" << databaseCounter << "(Database).";
+    delete db;
 }
 
 void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAddress, QString firstHeader)
@@ -88,5 +90,21 @@ void RoomsHandler::printMap()
 void RoomsHandler::updateTimestamp(QString roomId, QString streamId)
 {
     mMap[roomId][streamId][1] = QString::number(QDateTime::currentSecsSinceEpoch());
+}
+
+void RoomsHandler::startRemovalTimer(int seconds)
+{
+    qDebug() << "Removing inactive participants every" << seconds << "seconds.";
+    int milliseconds = seconds * 1000;
+    mAbortRemoval = false;
+    std::thread t([=]()
+    {
+        while (!mAbortRemoval)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+            removeOldParticipantsFromQMap();
+        }
+    });
+    t.detach();
 }
 

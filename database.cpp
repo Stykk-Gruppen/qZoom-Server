@@ -14,6 +14,12 @@ Database::Database()
     }
 }
 
+Database::~Database()
+{
+    mDb.close();
+    QSqlDatabase::removeDatabase("QMYSQL");
+}
+
 bool Database::connectDatabase()
 {
     mDb = QSqlDatabase::addDatabase("QMYSQL");

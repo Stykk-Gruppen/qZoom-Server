@@ -8,6 +8,7 @@ class Database
 {
 public:
     Database();
+    ~Database();
     bool connectDatabase();
     QSqlDatabase mDb;
 };

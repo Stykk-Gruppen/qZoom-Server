@@ -20,9 +20,6 @@ public:
     void startRemovalTimer(int seconds);
     void printMap();
 
-public slots:
-    //void removeOldParticipantsFromQMap();
-
 protected:
     QMultiMap<QString, QMultiMap<QString, std::vector<QString>>> mRoomsMultiMap;
     std::map<QString, std::map<QString, std::vector<QString>>> mMap;
@@ -31,7 +28,7 @@ protected:
     void removeOldParticipantsFromQMap();
 
 private:
-    QTimer* mTimer;
+    bool mAbortRemoval;
 };
 
 #endif // ROOMSHANDLER_H

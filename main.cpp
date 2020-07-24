@@ -20,15 +20,13 @@ int main(int argc, char *argv[])
 
     qDebug() << "qZoom-Server running Qt Version: " << QT_VERSION_STR;
 
-    //SocketHandler* sh = new SocketHandler();
     UdpSocketHandler* udpSocket = new UdpSocketHandler();
     TcpServerHandler* tcpServer = new TcpServerHandler();
-    tcpServer->initTcpServer();
+    //tcpServer->initTcpServer();
     int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
-    //udpSocket->startRemovalTimer(oldParticipantsRemovalIntervalValue);
+    udpSocket->startRemovalTimer(oldParticipantsRemovalIntervalValue);
 
-    //sh->printQMap();
-    udpSocket->printMap();
+    //udpSocket->printMap();
 
     return a.exec();
 }

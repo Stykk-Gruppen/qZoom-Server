@@ -4,6 +4,7 @@ UdpSocketHandler::UdpSocketHandler(QObject *parent) : QObject(parent)
 {
     mPort = 1337;
     initSocket();
+    //connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
 }
 
 void UdpSocketHandler::initSocket()
@@ -100,3 +101,4 @@ void UdpSocketHandler::readPendingDatagrams()
 
     }
 }
+
