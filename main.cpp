@@ -1,7 +1,7 @@
 #include <QCoreApplication>
-#include "sockethandler.h"
+#include "udpsockethandler.h"
+#include "tcpserverhandler.h"
 #include <iostream>
-
 
 int main(int argc, char *argv[])
 {
@@ -20,11 +20,14 @@ int main(int argc, char *argv[])
 
     qDebug() << "qZoom-Server running Qt Version: " << QT_VERSION_STR;
 
-    SocketHandler* sh = new SocketHandler();
+    //SocketHandler* sh = new SocketHandler();
+    UdpSocketHandler* udpSocket = new UdpSocketHandler();
+    TcpServerHandler* tcpServer = new TcpServerHandler();
     int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
-    sh->startRemovalTimer(oldParticipantsRemovalIntervalValue);
+    //udpSocket->startRemovalTimer(oldParticipantsRemovalIntervalValue);
 
     //sh->printQMap();
+    udpSocket->printMap();
 
     return a.exec();
 }
