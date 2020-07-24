@@ -17,10 +17,9 @@ void TcpServerHandler::acceptTcpConnection()
 {
 
     mTcpServerConnection = mTcpServer->nextPendingConnection();
-    if (!mTcpServerConnection) {
+    if (!mTcpServerConnection)
+    {
         qDebug() << "Error: got invalid pending connection!";
-    }else {
-        qDebug() << "connected";
     }
 
     connect(mTcpServerConnection, &QIODevice::readyRead, this, &TcpServerHandler::readTcpPacket);
@@ -32,7 +31,6 @@ void TcpServerHandler::acceptTcpConnection()
 
 void TcpServerHandler::readTcpPacket()
 {
-    qDebug() << "reading tcp packet";
     QByteArray originalData = mTcpServerConnection->readAll();
     QByteArray data = originalData;
 
@@ -116,7 +114,7 @@ void TcpServerHandler::readTcpPacket()
         }
         else
         {
-            qDebug() << "Could not find roomId (" << roomId << ") in Database";
+            qDebug() << "Could not find roomId (" << roomId << ") in Database " << "streamId: " << streamId;
         }
     }
 }
