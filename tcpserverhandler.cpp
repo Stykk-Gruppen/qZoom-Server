@@ -3,7 +3,7 @@
 TcpServerHandler::TcpServerHandler(QObject *parent) : QObject(parent)
 {
      initTcpServer();
-     mPort = 1338;
+     mPort = 1337;
 }
 
 void TcpServerHandler::initTcpServer()
@@ -30,6 +30,7 @@ void TcpServerHandler::acceptTcpConnection()
 
 void TcpServerHandler::readTcpPacket()
 {
+    qDebug() << "reading tcp packet";
     QByteArray originalData = mTcpServerConnection->readAll();
     QByteArray data = originalData;
 
