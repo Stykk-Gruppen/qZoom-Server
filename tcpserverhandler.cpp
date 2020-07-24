@@ -92,7 +92,7 @@ void TcpServerHandler::readTcpPacket()
             if (q.exec() && q.size() > 0)
             {
                 q.next();
-                RoomsHandler::initialInsert(roomId, streamId, mSenderAddress.toString(), QString(returnData));
+                RoomsHandler::initialInsert(roomId, streamId, mSenderAddress.toString(), QString(header));
                 std::map<QString, std::vector<QString>>::iterator i;
                 for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
                 {
