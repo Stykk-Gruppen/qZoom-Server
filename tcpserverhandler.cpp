@@ -60,7 +60,7 @@ void TcpServerHandler::readTcpPacket()
 
     //sendTcpPacket(mTcpServerConnection,returnData);
     returnData.append("\n");
-    returnData.prepend("1");
+    returnData.prepend(int(1));
     sendTcpPacket(mTcpServerConnection,returnData);
 
     if(mMap.count(roomId))
