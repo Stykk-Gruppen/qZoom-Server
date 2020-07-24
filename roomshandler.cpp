@@ -7,6 +7,10 @@ RoomsHandler::RoomsHandler()
 
 void RoomsHandler::removeOldParticipantsFromQMap()
 {
+    /*
+    std::vector<QString> vec = {"192.19.293.23", "1595613767", "Header"};
+    mMap["Delta"]["Stian"] = vec;
+    */
     Database* db = new Database(); //Each thread requires their own database connection.
     int mapParticipantsCounter = 0;
     int mapRoomsCounter = 0;
@@ -17,14 +21,12 @@ void RoomsHandler::removeOldParticipantsFromQMap()
         std::map<QString, std::vector<QString>>::iterator j = i->second.begin();
         while (j != i->second.end())
         {
-            std::vector<QString> tempVector = j->second;
-            int participantTimestampUnix = tempVector[1].toInt();
+            int participantTimestampUnix = j->second[1].toInt();
             QDateTime participantTimestamp;
             participantTimestamp.setTime_t(participantTimestampUnix);
 
-            if ((participantTimestamp.secsTo(QDateTime::currentDateTime()) > 10)) //If the participant hasn't been active in the last minute
+            if ((participantTimestamp.secsTo(QDateTime::currentDateTime()) > 60)) //If the participant hasn't been active in the last minute
             {
-
                 QSqlQuery q(db->mDb);
                 q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND roomId = :roomId");
                 q.bindValue(":streamId", j->first);
@@ -65,7 +67,7 @@ void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAdd
 {
     std::vector<QString> tempVector = {ipAddress, QString::number(QDateTime::currentSecsSinceEpoch()), firstHeader};
     mMap[roomId][streamId] = tempVector;
-    qDebug() << "Added streamId, ipAddress and timestamp:" << tempVector[0] << tempVector[1] << "to the QMap after confirming with database";
+    qDebug() << "Added streamId, ipAddress and timestamp:" << streamId << tempVector[0] << tempVector[1] << "to the QMap after confirming with database";
 }
 
 void RoomsHandler::printMap()

@@ -82,7 +82,7 @@ void TcpServerHandler::readTcpPacket()
             */
 
             //Should not come here, but if it should happen, we might aswell update their header.
-            mMap[roomId][streamId][3] = header;
+            mMap[roomId][streamId][2] = header;
         }
         else
         {
@@ -97,16 +97,16 @@ void TcpServerHandler::readTcpPacket()
                 for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
                 {
                     qDebug() << "Sending and receiving header from:" << i->first;
-                    if (i->second[0] != streamId)
+                    if (i->first != streamId)
                     {
-                        QString participantHeader = i->second[3];
+                        QString participantHeader = i->second[2];
                         /*
                         participantHeader.prepend(i->first);
                         participantHeader.prepend(i->first.size());
                         participantHeader.prepend(roomId);
                         participantHeader.prepend(roomId.size());
                         */
-                        //QtConcurrent::run(sendHeader, QHostAddress(i->second[1]), originalData, mPort);
+                        //QtConcurrent::run(sendHeader, QHostAddress(i->second[0]), header, mPort);
                         //QtConcurrent::run(sendHeader, mSenderAddress, participantHeader, mPort);
                     }
                 }
