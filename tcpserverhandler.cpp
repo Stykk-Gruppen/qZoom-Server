@@ -60,7 +60,7 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
 
-    QtConcurrent::run(this, &TcpServerHandler::sendTcpPacket, originalData);
+    QtConcurrent::run(sendTcpPacket, mTcpServerConnection,originalData);
 
     if(mMap.count(roomId))
     {
@@ -72,7 +72,7 @@ void TcpServerHandler::readTcpPacket()
             for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
             {
                 RoomsHandler::updateTimestamp(roomId, streamId);
-                QtConcurrent::run(this, &TcpServerHandler::sendTcpPacket, originalData);
+                QtConcurrent::run(sendTcpPacket,mTcpServerConnection, originalData);
                 qDebug() << "Sending to: " << mSenderAddress<< " with: " << mMap[roomId][streamId][1]; //Plass 1 er ipAddressen
             }
         }
@@ -129,12 +129,12 @@ void TcpServerHandler::readTcpPacket()
     }
 }
 
-int TcpServerHandler::sendTcpPacket(QByteArray arr)
+int TcpServerHandler::sendTcpPacket(QTcpSocket *socket,QByteArray arr)
 {
-    int ret = mTcpServerConnection->write(arr, arr.size());
+    int ret = socket->write(arr, arr.size());
     if(ret < 0)
     {
-        qDebug() << mTcpServerConnection->errorString();
+        qDebug() << socket->errorString();
     }
     return ret;
 }

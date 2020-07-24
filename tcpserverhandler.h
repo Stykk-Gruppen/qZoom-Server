@@ -19,7 +19,7 @@ public:
     void readTcpPacket();
 
 private:
-    int sendTcpPacket(QByteArray arr);
+    static int sendTcpPacket(QTcpSocket*, QByteArray arr);
     static void sendHeader(QHostAddress receiverAddress, QByteArray data, uint16_t port);
 
     QHostAddress mSenderAddress;
