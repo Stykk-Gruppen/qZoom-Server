@@ -60,6 +60,8 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
 
+    QtConcurrent::run(this, &TcpServerHandler::sendTcpPacket, originalData);
+
     if(mMap.count(roomId))
     {
         qDebug() << "found key: " << roomId << " in first map";
