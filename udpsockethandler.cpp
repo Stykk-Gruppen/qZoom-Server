@@ -40,6 +40,7 @@ void UdpSocketHandler::readPendingDatagrams()
 
 
         QByteArray data = datagram.data();
+        qDebug() << data;
         //roomId is the first x bytes, then streamId
         int roomIdLength = data[0];
         data.remove(0, 1);
@@ -73,6 +74,7 @@ void UdpSocketHandler::readPendingDatagrams()
         //streamId = "Bravo";
         //qDebug() << "roomId: " << roomId;
         //qDebug() << "streamId: " << streamId;
+        qDebug() << returnData;
         QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
         continue;
         if(mMap.count(roomId))
