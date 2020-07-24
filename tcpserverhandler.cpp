@@ -58,7 +58,7 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
 
-    sendTcpPacket(mTcpServerConnection,returnData);
+    //sendTcpPacket(mTcpServerConnection,returnData);
     returnData.append("\n");
     returnData.prepend("1");
     sendTcpPacket(mTcpServerConnection,returnData);
