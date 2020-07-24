@@ -32,6 +32,9 @@ void TcpServerHandler::acceptTcpConnection()
 void TcpServerHandler::readTcpPacket()
 {
     QByteArray originalData = mTcpServerConnection->readAll();
+    qDebug() << originalData.size();
+    qDebug() << originalData;
+
     QByteArray data = originalData;
 
     int roomIdLength = data[0];
