@@ -37,10 +37,9 @@ void UdpSocketHandler::readPendingDatagrams()
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
         mSenderAddress = datagram.senderAddress();
 
-        QByteArray originalData = datagram.data();
-        QByteArray data = originalData;
 
 
+        QByteArray data = datagram.data();
         //roomId is the first x bytes, then streamId
         int roomIdLength = data[0];
         data.remove(0, 1);
@@ -57,6 +56,9 @@ void UdpSocketHandler::readPendingDatagrams()
         int streamIdLength = data[0];
         data.remove(0, 1);
 
+
+
+        QByteArray returnData = data;
         //Finds the streamId header, stores it and removes it from the datagram
         QByteArray streamIdArray = QByteArray(data, streamIdLength);
         QString streamId(streamIdArray);
@@ -71,7 +73,8 @@ void UdpSocketHandler::readPendingDatagrams()
         //streamId = "Bravo";
         //qDebug() << "roomId: " << roomId;
         //qDebug() << "streamId: " << streamId;
-        QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, originalData);
+        QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
+        continue;
         if(mMap.count(roomId))
         {
             if (mMap[roomId].count(streamId))
@@ -81,7 +84,7 @@ void UdpSocketHandler::readPendingDatagrams()
                 for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
                 {
 
-                    QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, originalData);
+                    QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
                     qDebug() << "Sending to: " << mSenderAddress << " from: " << mMap[roomId][streamId][1] << i->first;
                 }
             }
