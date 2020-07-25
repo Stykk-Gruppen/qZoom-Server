@@ -12,6 +12,7 @@
 #include <QDateTime>
 #include "database.h"
 #include "config.cpp"
+#include <QMutex>
 
 class RoomsHandler : public Database
 {
@@ -19,16 +20,16 @@ public:
     RoomsHandler();
     void startRemovalTimer(int seconds);
     void printMap();
-
-protected:
-    QMultiMap<QString, QMultiMap<QString, std::vector<QString>>> mRoomsMultiMap;
-    std::map<QString, std::map<QString, std::vector<QString>>> mMap;
     void initialInsert(QString roomId, QString streamId, QString ipAddress, QString firstHeader);
     void updateTimestamp(QString roomId, QString streamId);
     void removeOldParticipantsFromQMap();
 
+    std::map<QString, std::map<QString, std::vector<QString>>> mMap;
+    std::mutex* mMutex;
+
 private:
     bool mAbortRemoval;
+
 };
 
 #endif // ROOMSHANDLER_H

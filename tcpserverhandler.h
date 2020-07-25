@@ -9,11 +9,11 @@
 #include "roomshandler.h"
 #include "tcpsockethandler.h"
 
-class TcpServerHandler : public QObject, public RoomsHandler
+class TcpServerHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit TcpServerHandler(QObject *parent = nullptr);
+    explicit TcpServerHandler(RoomsHandler* _roomsHandler, QObject *parent = nullptr);
     void initTcpServer();
     void acceptTcpConnection();
     void readTcpPacket();
@@ -21,7 +21,7 @@ public:
 private:
     static int sendTcpPacket(QTcpSocket*, QByteArray arr);
     static void sendHeader(QHostAddress receiverAddress, QByteArray data, uint16_t port);
-
+    RoomsHandler* mRoomsHandler;
     QHostAddress mSenderAddress;
     QTcpSocket *mTcpServerConnection = nullptr;
     QTcpServer* mTcpServer;

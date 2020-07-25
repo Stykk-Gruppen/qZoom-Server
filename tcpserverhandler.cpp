@@ -1,6 +1,6 @@
 #include "tcpserverhandler.h"
 
-TcpServerHandler::TcpServerHandler(QObject *parent) : QObject(parent)
+TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {
      initTcpServer();
      mPort = 1337;
@@ -66,9 +66,9 @@ void TcpServerHandler::readTcpPacket()
     returnData.prepend(int(1));
     sendTcpPacket(mTcpServerConnection,returnData);
 
-    if(mMap.count(roomId))
+    if(mRoomsHandler->mMap.count(roomId))
     {
-        if (mMap[roomId].count(streamId))
+        if (mRoomsHandler->mMap[roomId].count(streamId))
         {
 
             /*
@@ -82,19 +82,23 @@ void TcpServerHandler::readTcpPacket()
             */
 
             //Should not come here, but if it should happen, we might aswell update their header.
-            mMap[roomId][streamId][2] = header;
+            mRoomsHandler->mMutex->lock();
+            mRoomsHandler->mMap[roomId][streamId][2] = header;
+            mRoomsHandler->mMutex->unlock();
         }
         else
         {
-            QSqlQuery q(Database::mDb);
+            QSqlQuery q(mRoomsHandler->Database::mDb);
             q.prepare("SELECT * FROM roomSession, user WHERE roomSession.userId = user.id AND user.streamId = :streamId");
             q.bindValue(":streamId", streamId);
             if (q.exec() && q.size() > 0)
             {
                 q.next();
-                RoomsHandler::initialInsert(roomId, streamId, mSenderAddress.toString(), QString(header));
+                mRoomsHandler->mMutex->lock();
+                mRoomsHandler->initialInsert(roomId, streamId, mSenderAddress.toString(), QString(header));
+                mRoomsHandler->mMutex->unlock();
                 std::map<QString, std::vector<QString>>::iterator i;
-                for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
+                for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
                     qDebug() << "Sending and receiving header from:" << i->first;
                     if (i->first != streamId)
@@ -119,7 +123,7 @@ void TcpServerHandler::readTcpPacket()
     }
     else
     {
-        QSqlQuery q(Database::mDb);
+        QSqlQuery q(mRoomsHandler->Database::mDb);
         q.prepare("SELECT rs.ipAddress FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
         q.bindValue(":roomId", roomId);
         q.bindValue(":streamId", streamId);
@@ -127,7 +131,9 @@ void TcpServerHandler::readTcpPacket()
         {
             while (q.next())
             {
-                RoomsHandler::initialInsert(roomId, streamId, mSenderAddress.toString(), QString(header));
+                mRoomsHandler->mMutex->lock();
+                mRoomsHandler->initialInsert(roomId, streamId, mSenderAddress.toString(), QString(header));
+                mRoomsHandler->mMutex->unlock();
                 qDebug() << "Added: " << roomId << " to QMap";
             }
         }

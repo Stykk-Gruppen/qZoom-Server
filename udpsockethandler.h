@@ -13,16 +13,16 @@
 #include "roomshandler.h"
 
 
-class UdpSocketHandler : public QObject, public RoomsHandler
+class UdpSocketHandler : public QObject
 {
     Q_OBJECT
 public:
-    UdpSocketHandler(QObject *parent = nullptr);
+    UdpSocketHandler(RoomsHandler* _roomsHandler, QObject *parent = nullptr);
     void initSocket();
     void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
 private:
     int sendDatagram(QByteArray);
-
+    RoomsHandler* mRoomsHandler;
     QHostAddress mSenderAddress;
     QUdpSocket* mUdpSocket;
     uint16_t mPort;

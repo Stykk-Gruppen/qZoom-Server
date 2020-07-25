@@ -1,6 +1,6 @@
 #include "udpsockethandler.h"
 
-UdpSocketHandler::UdpSocketHandler(QObject *parent) : QObject(parent)
+UdpSocketHandler::UdpSocketHandler(RoomsHandler* _roomsHandler, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {
     mPort = 1337;
     initSocket();
@@ -77,16 +77,18 @@ void UdpSocketHandler::readPendingDatagrams()
         qDebug() << " datagram being returned: " <<  returnData;
         QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
         continue;
-        if(mMap.count(roomId))
+        if(mRoomsHandler->mMap.count(roomId))
         {
-            if (mMap[roomId].count(streamId))
+            if (mRoomsHandler->mMap[roomId].count(streamId))
             {
-                RoomsHandler::updateTimestamp(roomId, streamId);
+                mRoomsHandler->mMutex->lock();
+                mRoomsHandler->updateTimestamp(roomId, streamId);
+                mRoomsHandler->mMutex->unlock();
                 std::map<QString, std::vector<QString>>::iterator i;
-                for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
+                for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
                     QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
-                    qDebug() << "Sending to: " << mSenderAddress << " from: " << mMap[roomId][streamId][1] << i->first;
+                    qDebug() << "Sending to: " << mSenderAddress << " from: " << mRoomsHandler->mMap[roomId][streamId][1] << i->first;
                 }
             }
             else

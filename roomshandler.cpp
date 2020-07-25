@@ -2,15 +2,16 @@
 
 RoomsHandler::RoomsHandler()
 {
-
+    mMutex = new std::mutex;
 }
 
 void RoomsHandler::removeOldParticipantsFromQMap()
 {
-    /*
+
     std::vector<QString> vec = {"192.19.293.23", "1595613767", "Header"};
     mMap["Delta"]["Stian"] = vec;
-    */
+
+    mMutex->lock();
     Database* db = new Database(); //Each thread requires their own database connection.
     int mapParticipantsCounter = 0;
     int mapRoomsCounter = 0;
@@ -61,6 +62,7 @@ void RoomsHandler::removeOldParticipantsFromQMap()
     qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed"
              << mapParticipantsCounter << "(QMap P)" << mapRoomsCounter << "(QMap R)" << databaseCounter << "(Database).";
     delete db;
+    mMutex->unlock();
 }
 
 void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAddress, QString firstHeader)
@@ -72,6 +74,7 @@ void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAdd
 
 void RoomsHandler::printMap()
 {
+    mMutex->lock();
     qDebug() << "Printing start";
     std::map<QString, std::map<QString, std::vector<QString>>>::iterator i;
     for (i = mMap.begin(); i != mMap.end(); i++)
@@ -87,11 +90,14 @@ void RoomsHandler::printMap()
         }
     }
     qDebug() << "Printing end";
+    mMutex->unlock();
 }
 
 void RoomsHandler::updateTimestamp(QString roomId, QString streamId)
 {
+    mMutex->lock();
     mMap[roomId][streamId][1] = QString::number(QDateTime::currentSecsSinceEpoch());
+    mMutex->unlock();
 }
 
 void RoomsHandler::startRemovalTimer(int seconds)
