@@ -42,42 +42,35 @@ void UdpSocketHandler::readPendingDatagrams()
         QByteArray data = originalData;
         QByteArray returnData;
 
-        //qDebug() << data;
         //roomId is the first x bytes, then streamId
+        //Finds roomId length, stores it and removes it from the datagram
         int roomIdLength = data[0];
         data.remove(0, 1);
 
         //Finds the roomId header, stores it and removes it from the datagram
         QByteArray roomIdArray = QByteArray(data, roomIdLength);
         QString roomId(roomIdArray);
-        //QString test = QString(roomIdArray);
-        // qDebug() << "roomId String: " << test;
-        /// qDebug() << roomIdArray;
-        //char* roomId = roomIdArray.data();
         data.remove(0, roomIdLength);
+
+        //Stores a copy of the current QByteArray, so we can return a version without the removal of streamId
         returnData = data;
 
+        //Finds roomId length, stores it and removes it from the datagram
         int streamIdLength = data[0];
         data.remove(0, 1);
 
         //Finds the streamId header, stores it and removes it from the datagram
         QByteArray streamIdArray = QByteArray(data, streamIdLength);
         QString streamId(streamIdArray);
-        //char* streamId = streamIdArray.data();
         data.remove(0, streamIdLength);
 
+        //If the roomId is Debug, send back the same datagram
+        if(roomId=="Debug")
+        {
+            sendDatagram(returnData);
+            continue;
+        }
 
-
-        // qDebug() << "roomId: " << roomId;
-        //qDebug() << "streamId: " << streamId;
-        //roomId = "Delta";
-        //streamId = "Bravo";
-        //qDebug() << "roomId: " << roomId;
-        //qDebug() << "streamId: " << streamId;
-        //qDebug() << " datagram being returned: " <<  returnData;
-        //QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
-        //continue;
-        //mRoomsHandler->printMap();
         if(mRoomsHandler->mMap.count(roomId))
         {
             if (mRoomsHandler->mMap[roomId].count(streamId))
@@ -94,6 +87,7 @@ void UdpSocketHandler::readPendingDatagrams()
             }
             else
             {
+
                 //qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
             }
         }

@@ -63,10 +63,16 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "ipv4: " << mTcpServerConnection->peerAddress().toIPv4Address();
     qDebug() << "ipv4 string: " << QString(mTcpServerConnection->peerAddress().toIPv4Address());*/
 
+    //If the roomId is Debug, send back the recieved header
+    if(roomId=="Debug")
+    {
+         returnData.append(27);
+         returnData.prepend(int(1));
+         sendTcpPacket(mTcpServerConnection,returnData);
+         return;
+    }
     //sendTcpPacket(mTcpServerConnection,returnData);
-   // returnData.append(27);
-    //returnData.prepend(int(1));
-    //sendTcpPacket(mTcpServerConnection,returnData);
+
 
     if(mRoomsHandler->mMap.count(roomId))
     {
@@ -122,6 +128,7 @@ void TcpServerHandler::readTcpPacket()
                 qDebug() << "Could not find streamID (" << streamId << ") in roomSession (Database)";
                 returnCodesArray.append(mTcpReturnValues::STREAM_ID_NOT_FOUND);
                 sendTcpPacket(mTcpServerConnection,returnCodesArray);
+                returnCodesArray.clear();
             }
         }
     }
@@ -144,12 +151,14 @@ void TcpServerHandler::readTcpPacket()
             // When you create a new room, there is no information to send back, but we still need to reply
             returnCodesArray.append(mTcpReturnValues::SESSION_STARTED);
             sendTcpPacket(mTcpServerConnection,returnCodesArray);
+            returnCodesArray.clear();
         }
         else
         {
             qDebug() << "Could not find roomId (" << roomId << ") in Database " << "streamId: " << streamId;
             returnCodesArray.append(mTcpReturnValues::ROOM_ID_NOT_FOUND);
             sendTcpPacket(mTcpServerConnection,returnCodesArray);
+            returnCodesArray.clear();
         }
     }
    // mTcpServerConnection->close();
