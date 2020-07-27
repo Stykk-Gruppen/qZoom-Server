@@ -105,7 +105,7 @@ void RoomsHandler::startRemovalTimer(int seconds)
     qDebug() << "Removing inactive participants every" << seconds << "seconds.";
     int milliseconds = seconds * 1000;
     mAbortRemoval = false;
-    std::thread t([=]()
+    /*std::thread t([=]()
     {
         while (!mAbortRemoval)
         {
@@ -113,6 +113,6 @@ void RoomsHandler::startRemovalTimer(int seconds)
             removeOldParticipantsFromQMap();
         }
     });
-    t.detach();
+    t.detach();*/
 }
 
