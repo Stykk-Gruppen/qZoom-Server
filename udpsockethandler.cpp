@@ -77,6 +77,7 @@ void UdpSocketHandler::readPendingDatagrams()
         //qDebug() << " datagram being returned: " <<  returnData;
         //QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
         //continue;
+        //mRoomsHandler->printMap();
         if(mRoomsHandler->mMap.count(roomId))
         {
             if (mRoomsHandler->mMap[roomId].count(streamId))
@@ -98,7 +99,7 @@ void UdpSocketHandler::readPendingDatagrams()
         }
         else
         {
-            qDebug() << "Could not find roomId in map" << Q_FUNC_INFO;
+            qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
 
     }
