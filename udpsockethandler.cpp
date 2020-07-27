@@ -94,12 +94,12 @@ void UdpSocketHandler::readPendingDatagrams()
             }
             else
             {
-                qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
+                //qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
             }
         }
         else
         {
-            qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
+            //qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
 
     }

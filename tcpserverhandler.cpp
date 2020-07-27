@@ -31,7 +31,7 @@ void TcpServerHandler::readTcpPacket()
 {
 
     QByteArray data = mTcpServerConnection->readAll();
-    qDebug() << mTcpServerConnection->peerAddress();
+   // qDebug() << mTcpServerConnection->peerAddress();
     QByteArray originalData = data;
     QByteArray header;
 
@@ -58,8 +58,10 @@ void TcpServerHandler::readTcpPacket()
     //char* streamId = streamIdArray.data();
     data.remove(0, streamIdLength);
 
-    qDebug() << "streamId: " << streamId;
+    /*qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
+    qDebug() << "ipv4: " << mTcpServerConnection->peerAddress().toIPv4Address();
+    qDebug() << "ipv4 string: " << QString(mTcpServerConnection->peerAddress().toIPv4Address());*/
 
     //sendTcpPacket(mTcpServerConnection,returnData);
    // returnData.append(27);
@@ -118,6 +120,8 @@ void TcpServerHandler::readTcpPacket()
             else
             {
                 qDebug() << "Could not find streamID (" << streamId << ") in roomSession (Database)";
+                returnCodesArray.append(mTcpReturnValues::STREAM_ID_NOT_FOUND);
+                sendTcpPacket(mTcpServerConnection,returnCodesArray);
             }
         }
     }
@@ -133,17 +137,22 @@ void TcpServerHandler::readTcpPacket()
             while (q.next())
             {
                 mRoomsHandler->mMutex->lock();
-                mRoomsHandler->initialInsert(roomId, streamId, QString(mTcpServerConnection->peerAddress().toIPv4Address()), QString(header));
+                mRoomsHandler->initialInsert(roomId, streamId, QString::number(mTcpServerConnection->peerAddress().toIPv4Address()), QString(header));
                 mRoomsHandler->mMutex->unlock();
                 qDebug() << "Added: " << roomId << " to QMap";
             }
+            // When you create a new room, there is no information to send back, but we still need to reply
+            returnCodesArray.append(mTcpReturnValues::SESSION_STARTED);
+            sendTcpPacket(mTcpServerConnection,returnCodesArray);
         }
         else
         {
             qDebug() << "Could not find roomId (" << roomId << ") in Database " << "streamId: " << streamId;
+            returnCodesArray.append(mTcpReturnValues::ROOM_ID_NOT_FOUND);
+            sendTcpPacket(mTcpServerConnection,returnCodesArray);
         }
     }
-    mTcpServerConnection->close();
+   // mTcpServerConnection->close();
 }
 
 int TcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)

@@ -19,6 +19,9 @@ public:
     void readTcpPacket();
 
 private:
+    QByteArray returnCodesArray;
+    //Should match enum in Client::TcpSocketHandler
+    enum mTcpReturnValues { STREAM_ID_NOT_FOUND, ROOM_ID_NOT_FOUND, SESSION_STARTED };
     static int sendTcpPacket(QTcpSocket*, QByteArray arr);
     static void sendHeader(QHostAddress receiverAddress, QByteArray data, uint16_t port);
     RoomsHandler* mRoomsHandler;

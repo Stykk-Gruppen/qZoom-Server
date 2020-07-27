@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
     roomsHandler->startRemovalTimer(oldParticipantsRemovalIntervalValue);
 
-    roomsHandler->printMap();
+   // roomsHandler->printMap();
 
     return a.exec();
 }
