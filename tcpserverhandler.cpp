@@ -125,7 +125,7 @@ void TcpServerHandler::readTcpPacket()
     {
         QSqlQuery q(mRoomsHandler->Database::mDb);
         //SELECT rs.ipAddress FROM roomSession AS rs, user AS u WHERE rs.roomId = "Testt" AND rs.userId = u.id AND u.streamId =
-        q.prepare("SELECT rs.ipAddress FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
+        q.prepare("SELECT * FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
         q.bindValue(":roomId", roomId);
         q.bindValue(":streamId", streamId);
         if (q.exec() && q.size() > 0)

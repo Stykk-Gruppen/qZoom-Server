@@ -21,8 +21,7 @@ CREATE TABLE IF NOT EXISTS room
 CREATE TABLE IF NOT EXISTS roomSession
 (
 	roomId VARCHAR(32) NOT NULL,
-	userId INT NOT NULL UNIQUE,
-	ipAddress VARCHAR(32) NOT NULL
+	userId INT NOT NULL UNIQUE
 );
 
 INSERT INTO user (streamId, username, password)
