@@ -74,9 +74,9 @@ void UdpSocketHandler::readPendingDatagrams()
         //streamId = "Bravo";
         //qDebug() << "roomId: " << roomId;
         //qDebug() << "streamId: " << streamId;
-        qDebug() << " datagram being returned: " <<  returnData;
-        QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
-        continue;
+        //qDebug() << " datagram being returned: " <<  returnData;
+        //QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
+        //continue;
         if(mRoomsHandler->mMap.count(roomId))
         {
             if (mRoomsHandler->mMap[roomId].count(streamId))

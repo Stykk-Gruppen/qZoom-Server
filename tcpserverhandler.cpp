@@ -62,9 +62,9 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "roomId: " << roomId;
 
     //sendTcpPacket(mTcpServerConnection,returnData);
-    returnData.append(27);
-    returnData.prepend(int(1));
-    sendTcpPacket(mTcpServerConnection,returnData);
+   // returnData.append(27);
+    //returnData.prepend(int(1));
+    //sendTcpPacket(mTcpServerConnection,returnData);
 
     if(mRoomsHandler->mMap.count(roomId))
     {
