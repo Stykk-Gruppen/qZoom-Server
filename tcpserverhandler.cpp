@@ -1,4 +1,4 @@
-#include "tcpserverhandler.h"
+﻿#include "tcpserverhandler.h"
 
 TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {     
@@ -24,8 +24,7 @@ void TcpServerHandler::acceptTcpConnection()
     connect(mTcpServerConnection, &QIODevice::readyRead, this, &TcpServerHandler::readTcpPacket);
     //connect(tcpServerConnection, &QAbstractSocket::errorOccurred, this, &SocketHandler::displayError);
     connect(mTcpServerConnection, &QTcpSocket::disconnected, mTcpServerConnection, &QTcpSocket::deleteLater);
-
-    mTcpServer->close();
+    //mTcpServer->close();
 }
 
 void TcpServerHandler::readTcpPacket()
@@ -144,6 +143,7 @@ void TcpServerHandler::readTcpPacket()
             qDebug() << "Could not find roomId (" << roomId << ") in Database " << "streamId: " << streamId;
         }
     }
+    mTcpServerConnection->close();
 }
 
 int TcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
