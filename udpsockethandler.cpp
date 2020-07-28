@@ -83,7 +83,7 @@ void UdpSocketHandler::readPendingDatagrams()
                     if(mSenderAddress.toIPv4Address() != i->second[0].toUInt())
                     {
                         QtConcurrent::run(this, &UdpSocketHandler::sendDatagram,returnData,i->second[0].toUInt() );
-                        qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
+                       // qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
                     }
                 }
             }
