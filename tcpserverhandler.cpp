@@ -31,7 +31,7 @@ void TcpServerHandler::readTcpPacket()
 {
 
     QByteArray data = mTcpServerConnection->readAll();
-   // qDebug() << mTcpServerConnection->peerAddress();
+    qDebug() << mTcpServerConnection->peerAddress();
     QByteArray originalData = data;
     QByteArray header;
 
@@ -90,12 +90,14 @@ void TcpServerHandler::readTcpPacket()
             */
 
             //Should not come here, but if it should happen, we might aswell update their header.
+            qDebug() << "Should not be here?";
             mRoomsHandler->mMutex->lock();
             mRoomsHandler->mMap[roomId][streamId][2] = header;
             mRoomsHandler->mMutex->unlock();
         }
         else
         {
+            qDebug() << "found room, didnt find streamId";
             QSqlQuery q(mRoomsHandler->Database::mDb);
             q.prepare("SELECT * FROM roomSession, user WHERE roomSession.userId = user.id AND user.streamId = :streamId");
             q.bindValue(":streamId", streamId);
@@ -134,6 +136,7 @@ void TcpServerHandler::readTcpPacket()
     }
     else
     {
+        qDebug() << "did not find room or streamId";
         QSqlQuery q(mRoomsHandler->Database::mDb);
         //SELECT rs.ipAddress FROM roomSession AS rs, user AS u WHERE rs.roomId = "Testt" AND rs.userId = u.id AND u.streamId =
         q.prepare("SELECT * FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
@@ -161,7 +164,7 @@ void TcpServerHandler::readTcpPacket()
             returnCodesArray.clear();
         }
     }
-   // mTcpServerConnection->close();
+    mTcpServerConnection->close();
 }
 
 int TcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
