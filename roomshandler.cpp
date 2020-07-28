@@ -8,8 +8,8 @@ RoomsHandler::RoomsHandler()
 void RoomsHandler::removeOldParticipantsFromQMap()
 {
 
-    std::vector<QString> vec = {"192.19.293.23", "1595613767", "Header"};
-    mMap["Delta"]["Stian"] = vec;
+    //std::vector<QString> vec = {"192.19.293.23", "1595613767", "Header"};
+    //mMap["Delta"]["Stian"] = vec;
 
     mMutex->lock();
     Database* db = new Database(); //Each thread requires their own database connection.
@@ -105,7 +105,7 @@ void RoomsHandler::startRemovalTimer(int seconds)
     qDebug() << "Removing inactive participants every" << seconds << "seconds.";
     int milliseconds = seconds * 1000;
     mAbortRemoval = false;
-    /*std::thread t([=]()
+    std::thread t([=]()
     {
         while (!mAbortRemoval)
         {
@@ -113,6 +113,6 @@ void RoomsHandler::startRemovalTimer(int seconds)
             removeOldParticipantsFromQMap();
         }
     });
-    t.detach();*/
+    t.detach();
 }
 

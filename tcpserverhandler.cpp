@@ -78,21 +78,22 @@ void TcpServerHandler::readTcpPacket()
     {
         if (mRoomsHandler->mMap[roomId].count(streamId))
         {
-
-            /*
-            std::map<QString, std::vector<QString>>::iterator i;
-            for (i = mMap[roomId].begin(); i != mMap[roomId].end(); i++)
-            {
-                RoomsHandler::updateTimestamp(roomId, streamId);
-                QtConcurrent::run(sendTcpPacket, mTcpServerConnection, returnData);
-                qDebug() << "Sending to: " << mSenderAddress<< " with: " << mMap[roomId][streamId][1]; //Plass 1 er ipAddressen
-            }
-            */
-
-            //Should not come here, but if it should happen, we might aswell update their header.
+            //Will end up here if the user reconnects before the map has been cleared.
             mRoomsHandler->mMutex->lock();
+            //Replacing header just in case.
             mRoomsHandler->mMap[roomId][streamId][2] = header;
             mRoomsHandler->mMutex->unlock();
+
+            std::map<QString, std::vector<QString>>::iterator i;
+            for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
+            {
+                qDebug() << "Sending and receiving header from:" << i->first;
+                if (i->first != streamId)
+                {
+                    QString participantHeader = i->second[2];
+                    QtConcurrent::run(sendHeader, mSenderAddress, participantHeader, mPort);
+                }
+            }
         }
         else
         {
