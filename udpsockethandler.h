@@ -21,7 +21,7 @@ public:
     void initSocket();
     void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
 private:
-    int sendDatagram(QByteArray);
+    int sendDatagram(QByteArray,quint32);
     RoomsHandler* mRoomsHandler;
     QHostAddress mSenderAddress;
     QUdpSocket* mUdpSocket;

@@ -20,7 +20,7 @@ public:
     RoomsHandler();
     void startRemovalTimer(int seconds);
     void printMap();
-    void initialInsert(QString roomId, QString streamId, QString ipAddress, QString firstHeader);
+    void initialInsert(QString roomId, QString streamId, QString ipAddress, QByteArray firstHeader);
     void updateTimestamp(QString roomId, QString streamId);
     void removeOldParticipantsFromQMap();
 

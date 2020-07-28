@@ -19,10 +19,10 @@ void UdpSocketHandler::initSocket()
     mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
 }
 
-int UdpSocketHandler::sendDatagram(QByteArray arr)
+int UdpSocketHandler::sendDatagram(QByteArray arr, quint32 addr)
 {
     //qDebug() << participantAddress;
-    int ret = mUdpSocket->writeDatagram(arr, arr.size(), mSenderAddress, mPort);
+    int ret = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(addr), mPort);
     if(ret < 0)
     {
         qDebug() << mUdpSocket->error();
@@ -67,7 +67,7 @@ void UdpSocketHandler::readPendingDatagrams()
         //If the roomId is Debug, send back the same datagram
         if(roomId == "Debug")
         {
-            sendDatagram(returnData);
+            sendDatagram(returnData,mSenderAddress.toIPv4Address());
             continue;
         }
 
@@ -80,18 +80,21 @@ void UdpSocketHandler::readPendingDatagrams()
                 std::map<QString, std::vector<QByteArray>>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
-                    QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
-                    qDebug() << "Sending to: " << mSenderAddress << " from: " << mRoomsHandler->mMap[roomId][streamId][1] << i->first;
+                    if(mSenderAddress.toIPv4Address() != i->second[0].toUInt())
+                    {
+                        QtConcurrent::run(this, &UdpSocketHandler::sendDatagram,returnData,i->second[0].toUInt() );
+                        qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
+                    }
                 }
             }
             else
             {
-                qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
+                //qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
             }
         }
         else
         {
-            qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
+            //qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
         mRoomsHandler->mMutex->unlock();
     }
