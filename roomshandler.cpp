@@ -38,7 +38,7 @@ void RoomsHandler::removeOldParticipantsFromQMap()
                 }
                 else
                 {
-                    //qDebug() << "Failed Query" << Q_FUNC_INFO;
+                    qDebug() << "Failed Query" << Q_FUNC_INFO << q.lastError();
                 }
 
                 j = mMap[i->first].erase(j);
@@ -109,6 +109,7 @@ void RoomsHandler::startRemovalTimer(int seconds)
     {
         while (!mAbortRemoval)
         {
+            printMap();
             std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
             removeOldParticipantsFromQMap();
         }
