@@ -24,7 +24,7 @@ public:
     void updateTimestamp(QString roomId, QString streamId);
     void removeOldParticipantsFromQMap();
 
-    std::map<QString, std::map<QString, std::vector<QString>>> mMap;
+    std::map<QString, std::map<QString, std::vector<QByteArray>>> mMap;
     std::mutex* mMutex;
 
 private:

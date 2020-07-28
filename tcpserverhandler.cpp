@@ -84,7 +84,7 @@ void TcpServerHandler::readTcpPacket()
             mRoomsHandler->mMap[roomId][streamId][2] = header;
             mRoomsHandler->mMutex->unlock();
 
-            std::map<QString, std::vector<QString>>::iterator i;
+            std::map<QString, std::vector<QByteArray>>::iterator i;
             for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
             {
                 qDebug() << "Sending and receiving header from:" << i->first;
@@ -105,9 +105,9 @@ void TcpServerHandler::readTcpPacket()
             {
                 q.next();
                 mRoomsHandler->mMutex->lock();
-                mRoomsHandler->initialInsert(roomId, streamId, mSenderAddress.toString(), QString(header));
+                mRoomsHandler->initialInsert(roomId, streamId, mSenderAddress.toString(), header);
                 mRoomsHandler->mMutex->unlock();
-                std::map<QString, std::vector<QString>>::iterator i;
+                std::map<QString, std::vector<QByteArray>>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
                     qDebug() << "Sending and receiving header from:" << i->first;
@@ -147,7 +147,7 @@ void TcpServerHandler::readTcpPacket()
             while (q.next())
             {
                 mRoomsHandler->mMutex->lock();
-                mRoomsHandler->initialInsert(roomId, streamId, QString::number(mTcpServerConnection->peerAddress().toIPv4Address()), QString(header));
+                mRoomsHandler->initialInsert(roomId, streamId, QString::number(mTcpServerConnection->peerAddress().toIPv4Address()), header);
                 mRoomsHandler->mMutex->unlock();
                 qDebug() << "Added: " << roomId << " to QMap";
             }

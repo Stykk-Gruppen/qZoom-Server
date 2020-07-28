@@ -16,10 +16,10 @@ void RoomsHandler::removeOldParticipantsFromQMap()
     int mapParticipantsCounter = 0;
     int mapRoomsCounter = 0;
     int databaseCounter = 0;
-    std::map<QString, std::map<QString, std::vector<QString>>>::iterator i = mMap.begin();
+    std::map<QString, std::map<QString, std::vector<QByteArray>>>::iterator i = mMap.begin();
     while (i != mMap.end())
     {
-        std::map<QString, std::vector<QString>>::iterator j = i->second.begin();
+        std::map<QString, std::vector<QByteArray>>::iterator j = i->second.begin();
         while (j != i->second.end())
         {
             int participantTimestampUnix = j->second[1].toInt();
@@ -65,9 +65,9 @@ void RoomsHandler::removeOldParticipantsFromQMap()
     mMutex->unlock();
 }
 
-void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAddress, QString firstHeader)
+void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAddress, QByteArray header)
 {
-    std::vector<QString> tempVector = {ipAddress, QString::number(QDateTime::currentSecsSinceEpoch()), firstHeader};
+    std::vector<QByteArray> tempVector = {ipAddress.toUtf8(), QString::number(QDateTime::currentSecsSinceEpoch()).toUtf8(), header};
     mMap[roomId][streamId] = tempVector;
     qDebug() << "Added streamId, ipAddress and timestamp:" << streamId << tempVector[0] << tempVector[1] << "to the QMap after confirming with database";
 }
@@ -76,10 +76,10 @@ void RoomsHandler::printMap()
 {
     mMutex->lock();
     qDebug() << "Printing start";
-    std::map<QString, std::map<QString, std::vector<QString>>>::iterator i;
+    std::map<QString, std::map<QString, std::vector<QByteArray>>>::iterator i;
     for (i = mMap.begin(); i != mMap.end(); i++)
     {
-        std::map<QString, std::vector<QString>>::iterator j;
+        std::map<QString, std::vector<QByteArray>>::iterator j;
         for (j = i->second.begin(); j != i->second.begin(); j++)
         {
             qDebug() << "Room:" << i->first << j->first;
@@ -95,9 +95,7 @@ void RoomsHandler::printMap()
 
 void RoomsHandler::updateTimestamp(QString roomId, QString streamId)
 {
-    mMutex->lock();
-    mMap[roomId][streamId][1] = QString::number(QDateTime::currentSecsSinceEpoch());
-    mMutex->unlock();
+    mMap[roomId][streamId][1] = QString::number(QDateTime::currentSecsSinceEpoch()).toUtf8();
 }
 
 void RoomsHandler::startRemovalTimer(int seconds)

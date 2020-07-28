@@ -65,20 +65,19 @@ void UdpSocketHandler::readPendingDatagrams()
         data.remove(0, streamIdLength);
 
         //If the roomId is Debug, send back the same datagram
-        if(roomId=="Debug")
+        if(roomId == "Debug")
         {
             sendDatagram(returnData);
             continue;
         }
 
+        mRoomsHandler->mMutex->lock();
         if(mRoomsHandler->mMap.count(roomId))
         {
             if (mRoomsHandler->mMap[roomId].count(streamId))
             {
-                mRoomsHandler->mMutex->lock();
                 mRoomsHandler->updateTimestamp(roomId, streamId);
-                mRoomsHandler->mMutex->unlock();
-                std::map<QString, std::vector<QString>>::iterator i;
+                std::map<QString, std::vector<QByteArray>>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
                     QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData);
@@ -87,15 +86,14 @@ void UdpSocketHandler::readPendingDatagrams()
             }
             else
             {
-
-                //qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
+                qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
             }
         }
         else
         {
-            //qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
+            qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
-
+        mRoomsHandler->mMutex->unlock();
     }
 }
 
