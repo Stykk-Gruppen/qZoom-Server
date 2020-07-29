@@ -94,6 +94,7 @@ void UdpSocketHandler::readPendingDatagrams()
                             mRoomsHandler->removeParticipant(roomId, streamId);
                             sendParticipantRemovalNotice(roomId, streamId);
                         }
+                       // qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
                     }
                 }
             }

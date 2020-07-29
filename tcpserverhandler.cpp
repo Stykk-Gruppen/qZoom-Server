@@ -135,7 +135,9 @@ void TcpServerHandler::readTcpPacket()
                 }
                 tempArr.prepend(mRoomsHandler->mMap[roomId].size() - 1);
                 //sendTcpPacket(mTcpServerConnection, tempArr);
+                //Sends all headers currently in the map back to sender.
                 sendHeader(mSenderAddress, tempArr, mPort);
+
             }
             else
             {

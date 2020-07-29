@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     TcpServerHandler* tcpServer = new TcpServerHandler(roomsHandler);
     //tcpServer->initTcpServer();
     int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
-    roomsHandler->startRemovalTimer(oldParticipantsRemovalIntervalValue);
+    //roomsHandler->startRemovalTimer(oldParticipantsRemovalIntervalValue);
 
    // roomsHandler->printMap();
 
