@@ -22,7 +22,9 @@ public:
     void printMap();
     void initialInsert(QString roomId, QString streamId, QString ipAddress, QByteArray firstHeader);
     void updateTimestamp(QString roomId, QString streamId);
+    void updateHeader(QString roomId, QString streamId, QByteArray header);
     void removeOldParticipantsFromQMap();
+    void removeParticipant(QString roomId, QString streamId);
 
     std::map<QString, std::map<QString, std::vector<QByteArray>>> mMap;
     std::mutex* mMutex;

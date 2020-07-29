@@ -10,6 +10,7 @@ class TcpSocketHandler:  public QObject
     Q_OBJECT
 public:
     explicit TcpSocketHandler(uint16_t _port, QObject *parent = nullptr);
+    ~TcpSocketHandler();
     void initSocket();
     void sendHeader(QHostAddress receiverAddress, QByteArray data);
 

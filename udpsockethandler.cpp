@@ -67,7 +67,7 @@ void UdpSocketHandler::readPendingDatagrams()
         //If the roomId is Debug, send back the same datagram
         if(roomId == "Debug")
         {
-            sendDatagram(returnData,mSenderAddress.toIPv4Address());
+            sendDatagram(returnData, mSenderAddress.toIPv4Address());
             continue;
         }
 
@@ -80,10 +80,20 @@ void UdpSocketHandler::readPendingDatagrams()
                 std::map<QString, std::vector<QByteArray>>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
+                    QDateTime participantTimestamp;
+                    participantTimestamp.setTime_t(i->second[1].toInt());
                     if(mSenderAddress.toIPv4Address() != i->second[0].toUInt())
                     {
-                        QtConcurrent::run(this, &UdpSocketHandler::sendDatagram,returnData,i->second[0].toUInt() );
-                        qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
+                        if (participantTimestamp.secsTo(QDateTime::currentDateTime()) > 60)
+                        {
+                            QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second[0].toUInt());
+                            qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
+                        }
+                        else
+                        {
+                            mRoomsHandler->removeParticipant(roomId, streamId);
+                            sendParticipantRemovalNotice(roomId, streamId);
+                        }
                     }
                 }
             }
@@ -100,3 +110,19 @@ void UdpSocketHandler::readPendingDatagrams()
     }
 }
 
+void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
+{
+    QByteArray data;
+    std::map<QString, std::vector<QByteArray>>::iterator i;
+    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
+    {
+        data.prepend(streamId.toLocal8Bit().data());
+        data.prepend(streamId.size());
+        // 1 = remove participant
+        data.prepend(int(1));
+        QHostAddress receiverAddress(i->second[0].toUInt());
+
+        TcpSocketHandler tcpSocket(mPort);
+        tcpSocket.sendHeader(receiverAddress, data);
+    }
+}

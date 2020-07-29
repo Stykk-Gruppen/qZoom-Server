@@ -93,6 +93,11 @@ void RoomsHandler::printMap()
     mMutex->unlock();
 }
 
+void RoomsHandler::updateHeader(QString roomId, QString streamId, QByteArray header)
+{
+    mMap[roomId][streamId][2] = header;
+}
+
 void RoomsHandler::updateTimestamp(QString roomId, QString streamId)
 {
     mMap[roomId][streamId][1] = QString::number(QDateTime::currentSecsSinceEpoch()).toUtf8();
@@ -113,5 +118,32 @@ void RoomsHandler::startRemovalTimer(int seconds)
         }
     });
     t.detach();
+}
+
+void RoomsHandler::removeParticipant(QString roomId, QString streamId)
+{
+    Database* db = new Database(); //Each thread requires their own database connection.
+
+    mMap[roomId].erase(streamId);
+
+    QSqlQuery q(db->mDb);
+    q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND roomId = :roomId");
+    q.bindValue(":streamId", streamId);
+    q.bindValue(":roomId", roomId);
+    if (q.exec())
+    {
+        qDebug() << "Removed participant" << streamId << "from the database";
+    }
+    else
+    {
+        qDebug() << "Failed Query" << Q_FUNC_INFO << q.lastError();
+    }
+
+
+
+
+
+
+    delete db;
 }
 

@@ -2,8 +2,13 @@
 
 TcpSocketHandler::TcpSocketHandler(uint16_t _port, QObject *parent) : QObject(parent)
 {
-     initSocket();
-     mPort = _port;
+    mPort = _port;
+    initSocket();
+}
+
+TcpSocketHandler::~TcpSocketHandler()
+{
+    mTcpSocket->close();
 }
 
 void TcpSocketHandler::initSocket()
@@ -23,5 +28,3 @@ void TcpSocketHandler::sendHeader(QHostAddress receiverAddress, QByteArray data)
     mTcpSocket->bind(receiverAddress, mPort, QAbstractSocket::ShareAddress);
     mTcpSocket->write(data, data.length());
 }
-
-
