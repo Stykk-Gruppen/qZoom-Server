@@ -77,7 +77,7 @@ void UdpSocketHandler::readPendingDatagrams()
             if (mRoomsHandler->mMap[roomId].count(streamId))
             {
                 mRoomsHandler->updateTimestamp(roomId, streamId);
-                std::map<QString, std::vector<QByteArray>>::iterator i;
+                std::map<QString, std::vector<QVariant>>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
                     QDateTime participantTimestamp;
@@ -114,16 +114,30 @@ void UdpSocketHandler::readPendingDatagrams()
 void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
 {
     QByteArray data;
-    std::map<QString, std::vector<QByteArray>>::iterator i;
+    std::map<QString, std::vector<QVariant>>::iterator i;
     for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
     {
         data.prepend(streamId.toLocal8Bit().data());
         data.prepend(streamId.size());
         // 1 = remove participant
         data.prepend(int(1));
-        QHostAddress receiverAddress(i->second[0].toUInt());
-
+        //QHostAddress receiverAddress(i->second[0].toUInt());
+        QPointer<QTcpSocket> qTcpSocket = i->second[3].value<QPointer<QTcpSocket>>();
+        sendTcpPacket(qTcpSocket, data);
+        /*
         TcpSocketHandler tcpSocket(mPort);
         tcpSocket.sendHeader(receiverAddress, data);
+        */
+
     }
+}
+
+int UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
+{
+    int ret = socket->write(arr, arr.size());
+    if(ret < 0)
+    {
+        qDebug() << socket->errorString();
+    }
+    return ret;
 }

@@ -23,6 +23,7 @@ public:
 private:
     int sendDatagram(QByteArray, quint32);
     void sendParticipantRemovalNotice(QString roomId, QString streamId);
+    int sendTcpPacket(QTcpSocket *socket, QByteArray arr);
     RoomsHandler* mRoomsHandler;
     QHostAddress mSenderAddress;
     QUdpSocket* mUdpSocket;
