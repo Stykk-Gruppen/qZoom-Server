@@ -16,10 +16,10 @@ void RoomsHandler::removeOldParticipantsFromQMap()
     int mapParticipantsCounter = 0;
     int mapRoomsCounter = 0;
     int databaseCounter = 0;
-    std::map<QString, std::map<QString, std::vector<QByteArray>>>::iterator i = mMap.begin();
+    std::map<QString, std::map<QString, std::vector<QVariant>>>::iterator i = mMap.begin();
     while (i != mMap.end())
     {
-        std::map<QString, std::vector<QByteArray>>::iterator j = i->second.begin();
+        std::map<QString, std::vector<QVariant>>::iterator j = i->second.begin();
         while (j != i->second.end())
         {
             int participantTimestampUnix = j->second[1].toInt();
@@ -65,9 +65,10 @@ void RoomsHandler::removeOldParticipantsFromQMap()
     mMutex->unlock();
 }
 
-void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAddress, QByteArray header)
+void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAddress, QByteArray header, QTcpSocket* qTcpSocket)
 {
-    std::vector<QByteArray> tempVector = {ipAddress.toUtf8(), QString::number(QDateTime::currentSecsSinceEpoch()).toUtf8(), header};
+    QPointer<QTcpSocket> temp(qTcpSocket);
+    std::vector<QVariant> tempVector = {ipAddress.toUtf8(), QString::number(QDateTime::currentSecsSinceEpoch()).toUtf8(), header, QVariant::fromValue(temp)};
     mMap[roomId][streamId] = tempVector;
     qDebug() << "Added streamId, ipAddress and timestamp:" << streamId << tempVector[0] << tempVector[1] << "to the QMap after confirming with database";
 }
@@ -76,10 +77,10 @@ void RoomsHandler::printMap()
 {
     mMutex->lock();
     qDebug() << "Printing start";
-    std::map<QString, std::map<QString, std::vector<QByteArray>>>::iterator i;
+    std::map<QString, std::map<QString, std::vector<QVariant>>>::iterator i;
     for (i = mMap.begin(); i != mMap.end(); i++)
     {
-        std::map<QString, std::vector<QByteArray>>::iterator j;
+        std::map<QString, std::vector<QVariant>>::iterator j;
         for (j = i->second.begin(); j != i->second.begin(); j++)
         {
             qDebug() << "Room:" << i->first << j->first;
@@ -124,6 +125,10 @@ void RoomsHandler::removeParticipant(QString roomId, QString streamId)
 {
     Database* db = new Database(); //Each thread requires their own database connection.
 
+    //Er kanskje ikke nødvendig. Men sånn i tilfelle.
+    QPointer<QTcpSocket> tmp = mMap[roomId][streamId][3].value<QPointer<QTcpSocket> >();
+    tmp->close();
+    delete tmp;
     mMap[roomId].erase(streamId);
 
     QSqlQuery q(db->mDb);
@@ -138,11 +143,6 @@ void RoomsHandler::removeParticipant(QString roomId, QString streamId)
     {
         qDebug() << "Failed Query" << Q_FUNC_INFO << q.lastError();
     }
-
-
-
-
-
 
     delete db;
 }

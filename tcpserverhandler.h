@@ -23,7 +23,7 @@ private:
     //Should match enum in Client::TcpSocketHandler
     enum mTcpReturnValues { STREAM_ID_NOT_FOUND, ROOM_ID_NOT_FOUND, SESSION_STARTED };
     static int sendTcpPacket(QTcpSocket*, QByteArray arr);
-    static void sendHeader(QHostAddress receiverAddress, QByteArray data, uint16_t port);
+    static void sendHeader(QTcpSocket* receiverSocket, QByteArray data);
     RoomsHandler* mRoomsHandler;
     QHostAddress mSenderAddress;
     QTcpSocket *mTcpServerConnection = nullptr;
