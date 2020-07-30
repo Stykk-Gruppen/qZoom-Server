@@ -18,9 +18,9 @@ private:
     QTcpSocket* mTcpSocket;
     uint16_t mPort;
     QString mReceiverAddress;
-
+    int mBytesWritten;
 public slots:
-
+    void bytesWritten(qint64 bytes);
 signals:
 
 };

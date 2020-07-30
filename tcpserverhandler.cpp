@@ -2,8 +2,8 @@
 
 TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {     
-     mPort = 1337;
-     initTcpServer();
+    mPort = 1337;
+    initTcpServer();
 }
 
 void TcpServerHandler::initTcpServer()
@@ -29,7 +29,7 @@ void TcpServerHandler::acceptTcpConnection()
 
 void TcpServerHandler::readTcpPacket()
 {
-
+    mSenderAddress = mTcpServerConnection->peerAddress();
     QByteArray data = mTcpServerConnection->readAll();
     qDebug() << mTcpServerConnection->peerAddress();
     QByteArray originalData = data;
@@ -60,12 +60,12 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "ipv4 string: " << QString(mTcpServerConnection->peerAddress().toIPv4Address());*/
 
     //If the roomId is Debug, send back the recieved header
-    if(roomId ==" Debug")
+    if(roomId =="Debug")
     {
-         returnData.append(27);
-         returnData.prepend(int(1));
-         sendTcpPacket(mTcpServerConnection, returnData);
-         return;
+        returnData.append(27);
+        returnData.prepend(int(1));
+        sendTcpPacket(mTcpServerConnection, returnData);
+        return;
     }
     //sendTcpPacket(mTcpServerConnection,returnData);
 
@@ -117,9 +117,7 @@ void TcpServerHandler::readTcpPacket()
             if (q.exec() && q.size() > 0)
             {
                 q.next();
-                mRoomsHandler->mMutex->lock();
                 mRoomsHandler->initialInsert(roomId, streamId, QString::number(mTcpServerConnection->peerAddress().toIPv4Address()), header);
-                mRoomsHandler->mMutex->unlock();
                 std::map<QString, std::vector<QByteArray>>::iterator i;
                 QByteArray tempArr;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
@@ -130,12 +128,14 @@ void TcpServerHandler::readTcpPacket()
                         QByteArray participantHeader = i->second[2];
                         tempArr.append(i->second[2]);
                         tempArr.append(27);
+                        //qDebug() << i->second[0] << " converted: " << QHostAddress(i->second[0].toUInt());
                         QtConcurrent::run(sendHeader, QHostAddress(i->second[0].toUInt()), header, mPort);
                     }
                 }
                 tempArr.prepend(mRoomsHandler->mMap[roomId].size() - 1);
                 //sendTcpPacket(mTcpServerConnection, tempArr);
                 //Sends all headers currently in the map back to sender.
+                //qDebug() << "Before sending back all the headers to mSenderAddress: " << mSenderAddress;
                 sendHeader(mSenderAddress, tempArr, mPort);
 
             }
@@ -159,9 +159,7 @@ void TcpServerHandler::readTcpPacket()
         {
             while (q.next())
             {
-                mRoomsHandler->mMutex->lock();
                 mRoomsHandler->initialInsert(roomId, streamId, QString::number(mTcpServerConnection->peerAddress().toIPv4Address()), header);
-                mRoomsHandler->mMutex->unlock();
                 qDebug() << "Added: " << roomId << " to Map with ipv4: ";
             }
             // When you create a new room, there is no information to send back, but we still need to reply

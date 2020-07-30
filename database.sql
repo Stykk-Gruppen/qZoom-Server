@@ -30,4 +30,5 @@ VALUES ("Alpha", "stian", "123"),
 ("Charlie", "kent", "123");
 
 INSERT INTO room (id, host, password)
-VALUES ("Delta", 1, "123");
+VALUES ("Delta", 1, "123"),
+("Debug", 2, "123");

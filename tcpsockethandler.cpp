@@ -21,10 +21,24 @@ void TcpSocketHandler::initSocket()
 
     //mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
     //mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
+    connect(mTcpSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
 }
 
+void TcpSocketHandler::bytesWritten(qint64 bytes)
+{
+    qDebug() << "Tcpsocket wrote " << bytes << " bytes";
+    mBytesWritten = bytes;
+}
 void TcpSocketHandler::sendHeader(QHostAddress receiverAddress, QByteArray data)
 {
-    mTcpSocket->bind(receiverAddress, mPort, QAbstractSocket::ShareAddress);
+    mTcpSocket->connectToHost(receiverAddress, mPort);
+    //qDebug() << "After ConnectToHost, addr: " << mAddress << " port: " << mPort;
+    if(!mTcpSocket->waitForConnected(3000))
+    {
+        qDebug() << "TcpSocketError: " << mTcpSocket->errorString();
+        qDebug() << " addr: " << receiverAddress << " port: " << mPort;
+        return;
+    }
+    qDebug() << "SUCESS addr: " << receiverAddress << " port: " << mPort;
     mTcpSocket->write(data, data.length());
 }
