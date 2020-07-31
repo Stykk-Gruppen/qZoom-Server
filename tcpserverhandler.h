@@ -25,16 +25,12 @@ private:
     static int sendTcpPacket(QTcpSocket*, QByteArray arr);
     static void sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue);
     void sendParticipantRemovalNotice(QString roomId, QString streamId);
-    void SendAndRecieveFromEveryParticipantInRoom(QByteArray header, QTcpSocket *readSocket);
-    void sendUpdatedDisplayNameToEveryParticipantInRoom();
-    RoomsHandler* mRoomsHandler;
+    void SendAndRecieveFromEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header, QTcpSocket *readSocket);
+    void sendUpdatedDisplayNameToEveryParticipantInRoom(QString roomId, QString streamId, QString displayName);
 
+    RoomsHandler* mRoomsHandler;
     QTcpServer* mTcpServer;
     uint16_t mPort;
-
-    QString mRoomId;
-    QString mStreamId;
-    QString mDisplayName;
 };
 
 #endif // TCPSERVERHANDLER_H
