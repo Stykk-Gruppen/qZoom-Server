@@ -2,8 +2,8 @@
 
 TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {     
-     mPort = 1338;
-     initTcpServer();
+    mPort = 1338;
+    initTcpServer();
 }
 
 void TcpServerHandler::initTcpServer()
@@ -16,7 +16,7 @@ void TcpServerHandler::initTcpServer()
 
 void TcpServerHandler::acceptTcpConnection()
 {
-    mTcpServerConnection = mTcpServer->nextPendingConnection();
+    QTcpSocket* mTcpServerConnection = mTcpServer->nextPendingConnection();
     if (!mTcpServerConnection)
     {
         qDebug() << "Error: got invalid pending connection!";
@@ -28,11 +28,7 @@ void TcpServerHandler::acceptTcpConnection()
     //mTcpServer->close();
 }
 
-void TcpServerHandler::socketDiconnected(QString roomId, QString streamId)
-{
-    mRoomsHandler->removeParticipant(roomId, streamId);
-    sendParticipantRemovalNotice(roomId, streamId);
-}
+
 
 void TcpServerHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
 {
@@ -54,9 +50,7 @@ void TcpServerHandler::readTcpPacket()
 {
     QTcpSocket* readSocket = qobject_cast<QTcpSocket*>(sender());
     QHostAddress senderAddress = readSocket->peerAddress();
-    senderAddress = mTcpServerConnection->peerAddress();
-    QByteArray data = mTcpServerConnection->readAll();
-    qDebug() << mTcpServerConnection->peerAddress();
+    QByteArray data = readSocket->readAll();
     QByteArray originalData = data;
     QByteArray header;
 
@@ -92,7 +86,11 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "roomId: " << mRoomId;
     qDebug() << "displayName: " << mDisplayName;
 
-    connect(mTcpServerConnection, &QTcpSocket::disconnected, this, SIGNAL(&TcpServerHandler::socketDiconnected(roomId,streamId)));
+    connect(readSocket, &QTcpSocket::disconnected, [=] () {
+        mRoomsHandler->removeParticipant(mRoomId, mStreamId);
+        sendParticipantRemovalNotice(mRoomId, mStreamId);
+    });
+    // connect(readSocket, &QTcpSocket::disconnected, this, &TcpServerHandler::socketDiconnected);
 
     /*qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
@@ -104,7 +102,7 @@ void TcpServerHandler::readTcpPacket()
     {
         returnData.append(27);
         returnData.prepend(int(1));
-        sendTcpPacket(mTcpServerConnection, returnData);
+        sendTcpPacket(readSocket, returnData);
         return;
     }
     //sendTcpPacket(mTcpServerConnection,returnData);
@@ -123,7 +121,7 @@ void TcpServerHandler::readTcpPacket()
             else
             {
                 mRoomsHandler->updateHeader(mRoomId, mStreamId, header);
-                SendAndRecieveFromEveryParticipantInRoom(header);
+                SendAndRecieveFromEveryParticipantInRoom(header,readSocket);
             }
         }
         else
@@ -135,8 +133,8 @@ void TcpServerHandler::readTcpPacket()
             if (q.exec() && q.size() > 0)
             {
                 q.next();
-                mRoomsHandler->initialInsert(mRoomId, mStreamId, mDisplayName, header, mTcpServerConnection);
-                SendAndRecieveFromEveryParticipantInRoom(header);
+                mRoomsHandler->initialInsert(mRoomId, mStreamId, mDisplayName, header, readSocket);
+                SendAndRecieveFromEveryParticipantInRoom(header,readSocket);
                 /*
 =======
 
@@ -173,7 +171,7 @@ void TcpServerHandler::readTcpPacket()
             {
                 qDebug() << "Could not find streamID (" << mStreamId << ") in roomSession (Database)";
                 returnCodesArray.append(mTcpReturnValues::STREAM_ID_NOT_FOUND);
-                sendTcpPacket(mTcpServerConnection, returnCodesArray);
+                sendTcpPacket(readSocket, returnCodesArray);
                 returnCodesArray.clear();
             }
         }
@@ -189,24 +187,24 @@ void TcpServerHandler::readTcpPacket()
         {
             while (q.next())
             {
-                mRoomsHandler->initialInsert(mRoomId, mStreamId, mDisplayName, header, mTcpServerConnection);
+                mRoomsHandler->initialInsert(mRoomId, mStreamId, mDisplayName, header, readSocket);
                 qDebug() << "Added: " << mRoomId << " to Map with ipv4: ";
             }
             // When you create a new room, there is no information to send back, but we still need to reply
             returnCodesArray.append(mTcpReturnValues::SESSION_STARTED);
-            sendTcpPacket(mTcpServerConnection, returnCodesArray);
+            sendTcpPacket(readSocket, returnCodesArray);
             returnCodesArray.clear();
         }
         else
         {
             qDebug() << "Could not find roomId (" << mRoomId << ") in Database " << "streamId: " << mStreamId;
             returnCodesArray.append(mTcpReturnValues::ROOM_ID_NOT_FOUND);
-            sendTcpPacket(mTcpServerConnection, returnCodesArray);
+            sendTcpPacket(readSocket, returnCodesArray);
             returnCodesArray.clear();
         }
     }
     mRoomsHandler->mMutex->unlock();
-    mTcpServerConnection->close();
+    readSocket->close();
 }
 
 int TcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
@@ -226,7 +224,7 @@ void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, i
     sendTcpPacket(receiverSocket, data);
 }
 
-void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QByteArray header)
+void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QByteArray header, QTcpSocket* readSocket)
 {
     QByteArray tempArr;
     std::map<QString, Participant*>::iterator i;
@@ -243,7 +241,7 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QByteArray heade
         }
     }
     tempArr.prepend(mRoomsHandler->mMap[mRoomId].size() - 1);
-    sendHeader(mTcpServerConnection, tempArr, VIDEO_HEADER);
+    sendHeader(readSocket, tempArr, VIDEO_HEADER);
 }
 
 void TcpServerHandler::sendUpdatedDisplayNameToEveryParticipantInRoom()
