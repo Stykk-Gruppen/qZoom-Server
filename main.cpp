@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     UdpSocketHandler* udpSocket = new UdpSocketHandler(roomsHandler);
     TcpServerHandler* tcpServer = new TcpServerHandler(roomsHandler);
     //tcpServer->initTcpServer();
-    int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
+    //int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
     //roomsHandler->startRemovalTimer(oldParticipantsRemovalIntervalValue);
 
    // roomsHandler->printMap();

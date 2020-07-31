@@ -4,7 +4,6 @@ UdpSocketHandler::UdpSocketHandler(RoomsHandler* _roomsHandler, QObject *parent)
 {
     mPort = 1337;
     initSocket();
-    //connect(mTimer, SIGNAL(timeout()), this, SLOT(removeOldParticipantsFromQMap()));
 }
 
 void UdpSocketHandler::initSocket()
@@ -17,9 +16,10 @@ void UdpSocketHandler::initSocket()
 
     //mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
     mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
+    qDebug() << "UDP Listening on port:" << mPort;
 }
 
-int UdpSocketHandler::sendDatagram(QByteArray arr, quint32 addr)
+int UdpSocketHandler::sendDatagram(QByteArray arr, QHostAddress addr)
 {
     //qDebug() << participantAddress;
     int ret = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(addr), mPort);
@@ -67,7 +67,7 @@ void UdpSocketHandler::readPendingDatagrams()
         //If the roomId is Debug, send back the same datagram
         if(roomId == "Debug")
         {
-            sendDatagram(returnData, mSenderAddress.toIPv4Address());
+            sendDatagram(returnData, mSenderAddress);
             continue;
         }
 
@@ -76,18 +76,15 @@ void UdpSocketHandler::readPendingDatagrams()
         {
             if (mRoomsHandler->mMap[roomId].count(streamId))
             {
-                mRoomsHandler->updateTimestamp(roomId, streamId);
-                std::map<QString, std::vector<QVariant>>::iterator i;
+                std::map<QString, Participant*>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
-                    QDateTime participantTimestamp;
-                    participantTimestamp.setTime_t(i->second[1].toInt());
-                    if(mSenderAddress.toIPv4Address() != i->second[0].toUInt())
+                    if(mSenderAddress != i->second->getTcpSocket()->peerAddress())
                     {
-                        if (participantTimestamp.secsTo(QDateTime::currentDateTime()) > 60)
+                        if (i->second->getTcpSocket()->isWritable())
                         {
-                            QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second[0].toUInt());
-                            qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
+                            QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second->getTcpSocket()->peerAddress());
+                            //qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second->getTcpSocket()->peerAddress().toIPv4Address() << i->first;
                         }
                         else
                         {
@@ -114,21 +111,15 @@ void UdpSocketHandler::readPendingDatagrams()
 void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
 {
     QByteArray data;
-    std::map<QString, std::vector<QVariant>>::iterator i;
+    std::map<QString, Participant*>::iterator i;
     for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
     {
         data.prepend(streamId.toLocal8Bit().data());
         data.prepend(streamId.size());
         // 1 = remove participant
         data.prepend(int(1));
-        //QHostAddress receiverAddress(i->second[0].toUInt());
-        QPointer<QTcpSocket> qTcpSocket = i->second[3].value<QPointer<QTcpSocket>>();
+        QTcpSocket* qTcpSocket = i->second->getTcpSocket();
         sendTcpPacket(qTcpSocket, data);
-        /*
-        TcpSocketHandler tcpSocket(mPort);
-        tcpSocket.sendHeader(receiverAddress, data);
-        */
-
     }
 }
 

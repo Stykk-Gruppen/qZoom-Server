@@ -11,7 +11,6 @@
 #include <QDateTime>
 
 #include "roomshandler.h"
-#include "tcpsockethandler.h"
 
 class UdpSocketHandler : public QObject
 {
@@ -21,7 +20,7 @@ public:
     void initSocket();
     void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
 private:
-    int sendDatagram(QByteArray, quint32);
+    int sendDatagram(QByteArray arr, QHostAddress addr);
     void sendParticipantRemovalNotice(QString roomId, QString streamId);
     int sendTcpPacket(QTcpSocket *socket, QByteArray arr);
     RoomsHandler* mRoomsHandler;

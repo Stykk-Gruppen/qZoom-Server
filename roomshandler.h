@@ -13,26 +13,24 @@
 #include "database.h"
 #include "config.cpp"
 #include <QMutex>
-#include "tcpsockethandler.h"
 #include <QTcpSocket>
+#include "participant.h"
 
 class RoomsHandler : public Database
 {
 public:
     RoomsHandler();
     void startRemovalTimer(int seconds);
-    void printMap();
-    void initialInsert(QString roomId, QString streamId, QString ipAddress, QByteArray header, QTcpSocket* qTcpSocket);
-    void updateTimestamp(QString roomId, QString streamId);
+    void initialInsert(QString roomId, QString streamId, QString ipAddress,
+                       QByteArray header, QTcpSocket* qTcpSocket);
     void updateHeader(QString roomId, QString streamId, QByteArray header);
-    void removeOldParticipantsFromQMap();
     void removeParticipant(QString roomId, QString streamId);
+    void updateDisplayName(QString roomId, QString streamId, QString displayName);
 
-    std::map<QString, std::map<QString, std::vector<QVariant>>> mMap;
+    std::map<QString, std::map<QString, Participant*>> mMap;
     std::mutex* mMutex;
 
 private:
-    bool mAbortRemoval;
     uint16_t mPort = 1337;
 
 };

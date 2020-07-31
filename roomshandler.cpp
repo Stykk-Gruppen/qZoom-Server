@@ -5,134 +5,28 @@ RoomsHandler::RoomsHandler()
     mMutex = new std::mutex;
 }
 
-void RoomsHandler::removeOldParticipantsFromQMap()
+void RoomsHandler::initialInsert(QString roomId, QString streamId, QString displayName, QByteArray header, QTcpSocket* qTcpSocket)
 {
-
-    //std::vector<QString> vec = {"192.19.293.23", "1595613767", "Header"};
-    //mMap["Delta"]["Stian"] = vec;
-
-    mMutex->lock();
-    Database* db = new Database(); //Each thread requires their own database connection.
-    int mapParticipantsCounter = 0;
-    int mapRoomsCounter = 0;
-    int databaseCounter = 0;
-    std::map<QString, std::map<QString, std::vector<QVariant>>>::iterator i = mMap.begin();
-    while (i != mMap.end())
-    {
-        std::map<QString, std::vector<QVariant>>::iterator j = i->second.begin();
-        while (j != i->second.end())
-        {
-            int participantTimestampUnix = j->second[1].toInt();
-            QDateTime participantTimestamp;
-            participantTimestamp.setTime_t(participantTimestampUnix);
-
-            if ((participantTimestamp.secsTo(QDateTime::currentDateTime()) > 60)) //If the participant hasn't been active in the last minute
-            {
-                QSqlQuery q(db->mDb);
-                q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND roomId = :roomId");
-                q.bindValue(":streamId", j->first);
-                q.bindValue(":roomId", i->first);
-                if (q.exec())
-                {
-                    databaseCounter++;
-                }
-                else
-                {
-                    qDebug() << "Failed Query" << Q_FUNC_INFO << q.lastError();
-                }
-
-                j = mMap[i->first].erase(j);
-                mapParticipantsCounter++;
-            }
-            else
-            {
-                ++j;
-            }
-        }
-        if (i->second.size() == 0)
-        {
-            i = mMap.erase(i);
-            mapRoomsCounter++;
-        }
-        else
-        {
-            ++i;
-        }
-    }
-    qDebug() << QDateTime::currentDateTime().toString("d.MMMM yyyy hh:mm:ss") << "Successfully removed"
-             << mapParticipantsCounter << "(QMap P)" << mapRoomsCounter << "(QMap R)" << databaseCounter << "(Database).";
-    delete db;
-    mMutex->unlock();
-}
-
-void RoomsHandler::initialInsert(QString roomId, QString streamId, QString ipAddress, QByteArray header, QTcpSocket* qTcpSocket)
-{
-    QPointer<QTcpSocket> temp(qTcpSocket);
-    std::vector<QVariant> tempVector = {ipAddress.toUtf8(), QString::number(QDateTime::currentSecsSinceEpoch()).toUtf8(), header, QVariant::fromValue(temp)};
-    mMap[roomId][streamId] = tempVector;
-    qDebug() << "Added streamId, ipAddress and timestamp:" << streamId << tempVector[0] << tempVector[1] << "to the QMap after confirming with database";
-}
-
-void RoomsHandler::printMap()
-{
-    mMutex->lock();
-    qDebug() << "Printing start";
-    std::map<QString, std::map<QString, std::vector<QVariant>>>::iterator i;
-    for (i = mMap.begin(); i != mMap.end(); i++)
-    {
-        std::map<QString, std::vector<QVariant>>::iterator j;
-        for (j = i->second.begin(); j != i->second.begin(); j++)
-        {
-            qDebug() << "Room:" << i->first << j->first;
-            for (unsigned long k = 0; k < j->second.size(); k++)
-            {
-                qDebug() << k << j->second[k];
-            }
-        }
-    }
-    qDebug() << "Printing end";
-    mMutex->unlock();
+    mMap[roomId][streamId] = new Participant(displayName, header, qTcpSocket);
+    qDebug() << "Added streamId, displayName, header and QTcpSocket:" << streamId << displayName << "to the map after confirming with database";
 }
 
 void RoomsHandler::updateHeader(QString roomId, QString streamId, QByteArray header)
 {
-    mMap[roomId][streamId][2] = header;
+    mMap[roomId][streamId]->setHeader(header);
 }
 
-void RoomsHandler::updateTimestamp(QString roomId, QString streamId)
+void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString displayName)
 {
-    mMap[roomId][streamId][1] = QString::number(QDateTime::currentSecsSinceEpoch()).toUtf8();
-}
-
-void RoomsHandler::startRemovalTimer(int seconds)
-{
-    qDebug() << "Removing inactive participants every" << seconds << "seconds.";
-    int milliseconds = seconds * 1000;
-    mAbortRemoval = false;
-    std::thread t([=]()
-    {
-        while (!mAbortRemoval)
-        {
-            printMap();
-            std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-            removeOldParticipantsFromQMap();
-        }
-    });
-    t.detach();
+    mMap[roomId][streamId]->setDisplayName(displayName);
 }
 
 void RoomsHandler::removeParticipant(QString roomId, QString streamId)
 {
-    Database* db = new Database(); //Each thread requires their own database connection.
-
-    //Er kanskje ikke nødvendig. Men sånn i tilfelle.
-    QPointer<QTcpSocket> tmp = mMap[roomId][streamId][3].value<QPointer<QTcpSocket> >();
-    tmp->close();
-    delete tmp;
     mMap[roomId].erase(streamId);
 
-    QSqlQuery q(db->mDb);
-    q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND roomId = :roomId");
+    QSqlQuery q(Database::mDb);
+    q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND id = :roomId");
     q.bindValue(":streamId", streamId);
     q.bindValue(":roomId", roomId);
     if (q.exec())
@@ -143,7 +37,5 @@ void RoomsHandler::removeParticipant(QString roomId, QString streamId)
     {
         qDebug() << "Failed Query" << Q_FUNC_INFO << q.lastError();
     }
-
-    delete db;
 }
 

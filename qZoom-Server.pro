@@ -20,9 +20,9 @@ SOURCES += \
         config.cpp \
         database.cpp \
         main.cpp \
+        participant.cpp \
         roomshandler.cpp \
         tcpserverhandler.cpp \
-        tcpsockethandler.cpp \
         udpsockethandler.cpp
 
 # Default rules for deployment.
@@ -32,7 +32,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     database.h \
+    participant.h \
     roomshandler.h \
     tcpserverhandler.h \
-    tcpsockethandler.h \
     udpsockethandler.h

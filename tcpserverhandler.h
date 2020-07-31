@@ -7,7 +7,6 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "roomshandler.h"
-#include "tcpsockethandler.h"
 
 class TcpServerHandler : public QObject
 {
@@ -22,13 +21,20 @@ private:
     QByteArray returnCodesArray;
     //Should match enum in Client::TcpSocketHandler
     enum mTcpReturnValues { STREAM_ID_NOT_FOUND, ROOM_ID_NOT_FOUND, SESSION_STARTED };
+    enum mTcpHeaderValues { VIDEO_HEADER, DEAD_PARTICIPANT, NEW_DISPLAY_NAME };
     static int sendTcpPacket(QTcpSocket*, QByteArray arr);
-    static void sendHeader(QTcpSocket* receiverSocket, QByteArray data);
+    static void sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue);
+    void SendAndRecieveFromEveryParticipantInRoom(QByteArray header);
+    void sendUpdatedDisplayNameToEveryParticipantInRoom();
     RoomsHandler* mRoomsHandler;
     QHostAddress mSenderAddress;
     QTcpSocket *mTcpServerConnection = nullptr;
     QTcpServer* mTcpServer;
     uint16_t mPort;
+
+    QString mRoomId;
+    QString mStreamId;
+    QString mDisplayName;
 };
 
 #endif // TCPSERVERHANDLER_H
