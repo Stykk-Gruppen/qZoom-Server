@@ -24,9 +24,9 @@ void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString d
 void RoomsHandler::removeParticipant(QString roomId, QString streamId)
 {
     mMap[roomId].erase(streamId);
-
+ // q.prepare("SELECT r.id, r.password, u.username FROM room AS r, user AS u WHERE r.host = u.id AND r.id = :roomId AND r.password = :roomPassword");
     QSqlQuery q(Database::mDb);
-    q.prepare("DELETE FROM roomSession WHERE streamId = :streamId AND id = :roomId");
+    q.prepare("DELETE FROM roomSession, user WHERE roomSession.userId = user.Id AND user.streamId = :streamId AND roomId = :roomId");
     q.bindValue(":streamId", streamId);
     q.bindValue(":roomId", roomId);
     if (q.exec())
@@ -36,6 +36,7 @@ void RoomsHandler::removeParticipant(QString roomId, QString streamId)
     else
     {
         qDebug() << "Failed Query" << Q_FUNC_INFO << q.lastError();
+        qDebug() << "streamId " << streamId << " and roomId: " << roomId;
     }
 }
 
