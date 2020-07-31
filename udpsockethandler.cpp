@@ -1,8 +1,8 @@
 #include "udpsockethandler.h"
 
-UdpSocketHandler::UdpSocketHandler(RoomsHandler* _roomsHandler, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
+UdpSocketHandler::UdpSocketHandler(RoomsHandler* _roomsHandler, int _portNumber, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {
-    mPort = 1337;
+    mPortNumber = _portNumber;
     initSocket();
 }
 
@@ -14,20 +14,19 @@ void UdpSocketHandler::initSocket()
     //which means when the socket recieves a packet the function will run.
     connect(mUdpSocket, &QUdpSocket::readyRead, this, &UdpSocketHandler::readPendingDatagrams);
 
-    //mUdpSocket->bind(QHostAddress::LocalHost, mPort, QAbstractSocket::ShareAddress);
-    mUdpSocket->bind(QHostAddress::Any, mPort, QAbstractSocket::ShareAddress);
-    qDebug() << "UDP Listening on port:" << mPort;
+    //Starts listening for UDP datagrams on mPortNumber for any address.
+    mUdpSocket->bind(QHostAddress::Any, mPortNumber, QAbstractSocket::ShareAddress);
+    qDebug() << "UDP Listening on port:" << mPortNumber;
 }
 
-int UdpSocketHandler::sendDatagram(QByteArray arr, QHostAddress addr)
+void UdpSocketHandler::sendDatagram(QByteArray arr, QHostAddress addr)
 {
     //qDebug() << participantAddress;
-    int ret = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(addr), mPort);
-    if(ret < 0)
+    int error = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(addr), mPortNumber);
+    if(error < 0)
     {
-        qDebug() << mUdpSocket->error();
+        qDebug() << "UDP sending error: " << error << " meaning: " << mUdpSocket->error() << " " <<Q_FUNC_INFO;
     }
-    return ret;
 }
 
 void UdpSocketHandler::readPendingDatagrams()
@@ -123,12 +122,11 @@ void UdpSocketHandler::readPendingDatagrams()
     }
 }*/
 
-int UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
+void UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
 {
-    int ret = socket->write(arr, arr.size());
-    if(ret < 0)
+    int error = socket->write(arr, arr.size());
+    if(error < 0)
     {
-        qDebug() << socket->errorString();
+        qDebug() << "TCP sending error: " << error << " meaning: " << socket->error() << " " <<Q_FUNC_INFO;
     }
-    return ret;
 }

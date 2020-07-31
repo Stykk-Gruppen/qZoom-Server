@@ -12,13 +12,13 @@ class TcpServerHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit TcpServerHandler(RoomsHandler* _roomsHandler, QObject *parent = nullptr);
+    explicit TcpServerHandler(RoomsHandler* _roomsHandler, int portNumber, QObject *parent = nullptr);
     void initTcpServer();
     void acceptTcpConnection();
     void readTcpPacket();
 
 private:
-    QByteArray returnCodesArray;
+   // QByteArray returnCodesArray;
     //Should match enum in Client::TcpSocketHandler
     //enum mTcpReturnValues { STREAM_ID_NOT_FOUND, ROOM_ID_NOT_FOUND, SESSION_STARTED };
     enum mTcpHeaderValues { VIDEO_HEADER, REMOVE_PARTICIPANT, NEW_DISPLAY_NAME, VIDEO_DISABLED, AUDIO_DISABLED };
@@ -29,7 +29,7 @@ private:
 
     RoomsHandler* mRoomsHandler;
     QTcpServer* mTcpServer;
-    uint16_t mPort;
+    int mPortNumber;
 };
 
 #endif // TCPSERVERHANDLER_H

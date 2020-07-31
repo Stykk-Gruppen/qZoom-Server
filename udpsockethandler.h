@@ -16,17 +16,17 @@ class UdpSocketHandler : public QObject
 {
     Q_OBJECT
 public:
-    UdpSocketHandler(RoomsHandler* _roomsHandler, QObject *parent = nullptr);
+    UdpSocketHandler(RoomsHandler* _roomsHandler, int portNumber, QObject *parent = nullptr);
     void initSocket();
     void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
 private:
-    int sendDatagram(QByteArray arr, QHostAddress addr);
+    void sendDatagram(QByteArray arr, QHostAddress addr);
     //void sendParticipantRemovalNotice(QString roomId, QString streamId);
-    int sendTcpPacket(QTcpSocket *socket, QByteArray arr);
+    void sendTcpPacket(QTcpSocket *socket, QByteArray arr);
     RoomsHandler* mRoomsHandler;
     QHostAddress mSenderAddress;
     QUdpSocket* mUdpSocket;
-    uint16_t mPort;
+    int mPortNumber;
 };
 
 #endif // UDPSOCKETHANDLER_H

@@ -1,8 +1,8 @@
 ﻿#include "tcpserverhandler.h"
 
-TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
+TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, int _portNumber, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {     
-    mPort = 1338;
+    mPortNumber = _portNumber;
     initTcpServer();
 }
 
@@ -10,8 +10,8 @@ void TcpServerHandler::initTcpServer()
 {
     mTcpServer = new QTcpServer();
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServerHandler::acceptTcpConnection);
-    mTcpServer->listen(QHostAddress::Any, mPort);
-    qDebug() << "TCP Listening on port:" << mPort;
+    mTcpServer->listen(QHostAddress::Any, mPortNumber);
+    qDebug() << "TCP Listening on port:" << mPortNumber;
 }
 
 void TcpServerHandler::acceptTcpConnection()
@@ -101,16 +101,16 @@ void TcpServerHandler::readTcpPacket()
 
     connect(readSocket, &QTcpSocket::disconnected, [=] ()
     {
-            bool sqlSuccess = mRoomsHandler->removeParticipant(roomId, streamId);
-            if(sqlSuccess)
-            {
-                QByteArray defaultSendHeader;
-                defaultSendHeader.prepend(streamId.toLocal8Bit().data());
-                defaultSendHeader.prepend(streamId.size());
-                sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_DISABLED);
+        bool sqlSuccess = mRoomsHandler->removeParticipant(roomId, streamId);
+        if(sqlSuccess)
+        {
+            QByteArray defaultSendHeader;
+            defaultSendHeader.prepend(streamId.toLocal8Bit().data());
+            defaultSendHeader.prepend(streamId.size());
+            sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_DISABLED);
 
-                //sendParticipantRemovalNotice(roomId, streamId);
-            }
+            //sendParticipantRemovalNotice(roomId, streamId);
+        }
 
     });
     // connect(readSocket, &QTcpSocket::disconnected, this, &TcpServerHandler::socketDiconnected);
@@ -125,8 +125,7 @@ void TcpServerHandler::readTcpPacket()
     {
         debugReturnData.append(27);
         debugReturnData.prepend(int(1));
-        debugReturnData.prepend(int(0));
-        //sendTcpPacket(readSocket, debugReturnData);
+        sendHeader(readSocket, debugReturnData,VIDEO_HEADER);
         return;
     }
     //sendTcpPacket(mTcpServerConnection,returnData);
@@ -136,6 +135,7 @@ void TcpServerHandler::readTcpPacket()
     {
         if (mRoomsHandler->mMap[roomId].count(streamId))
         {
+            qDebug() << "Found room and streamId, case: " <<data[0];
             QByteArray defaultSendHeader;
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
