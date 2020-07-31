@@ -21,22 +21,38 @@ void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString d
     mMap[roomId][streamId]->setDisplayName(displayName);
 }
 
-void RoomsHandler::removeParticipant(QString roomId, QString streamId)
+bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
 {
+    //qDebug() << mMap;
+    if(!mMap[roomId][streamId])
+    {
+        return false;
+        qDebug() << "roomId and streamId combo did not exist in map" << Q_FUNC_INFO;
+    }
     mMap[roomId].erase(streamId);
- // q.prepare("SELECT r.id, r.password, u.username FROM room AS r, user AS u WHERE r.host = u.id AND r.id = :roomId AND r.password = :roomPassword");
+    //qDebug() << mMap;
     QSqlQuery q(Database::mDb);
-    q.prepare("DELETE FROM roomSession, user WHERE roomSession.userId = user.Id AND user.streamId = :streamId AND roomId = :roomId");
+    //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
+    q.prepare("DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId)");
     q.bindValue(":streamId", streamId);
     q.bindValue(":roomId", roomId);
     if (q.exec())
     {
-        qDebug() << "Removed participant" << streamId << "from the database";
+        if(q.size() >= 1)
+        {
+            qDebug() << "Removed participant" << streamId << "from the roomSession" << roomId;
+        }
+        else
+        {
+            qDebug() << "Number of rows deleted " << q.size();
+        }
     }
     else
     {
         qDebug() << "Failed Query" << Q_FUNC_INFO << q.lastError();
         qDebug() << "streamId " << streamId << " and roomId: " << roomId;
+        return false;
     }
+    return true;
 }
 

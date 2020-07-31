@@ -20,15 +20,12 @@ public:
 private:
     QByteArray returnCodesArray;
     //Should match enum in Client::TcpSocketHandler
-    enum mTcpReturnValues { STREAM_ID_NOT_FOUND, ROOM_ID_NOT_FOUND, SESSION_STARTED };
+    //enum mTcpReturnValues { STREAM_ID_NOT_FOUND, ROOM_ID_NOT_FOUND, SESSION_STARTED };
     enum mTcpHeaderValues { VIDEO_HEADER, REMOVE_PARTICIPANT, NEW_DISPLAY_NAME, VIDEO_DISABLED, AUDIO_DISABLED };
-    static int sendTcpPacket(QTcpSocket*, QByteArray arr);
+    //static int sendTcpPacket(QTcpSocket*, QByteArray arr);
     static void sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue);
-    void sendParticipantRemovalNotice(QString roomId, QString streamId);
-    void sendParticipantMutedNotice(QString roomId, QString streamId);
     void SendAndRecieveFromEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header, QTcpSocket *readSocket);
-    void sendUpdatedDisplayNameToEveryParticipantInRoom(QString roomId, QString streamId, QString displayName);
-    void sendHeaderToEveryParticipant(QString roomId, QString streamId, QString displayName, int headerCode);
+    void sendHeaderToEveryParticipant(QString roomId, QString streamId, QByteArray header, int headerCode);
 
     RoomsHandler* mRoomsHandler;
     QTcpServer* mTcpServer;
