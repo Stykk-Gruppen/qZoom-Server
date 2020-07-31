@@ -30,7 +30,7 @@ void TcpServerHandler::acceptTcpConnection()
 
 void TcpServerHandler::readTcpPacket()
 {
-
+    mSenderAddress = mTcpServerConnection->peerAddress();
     QByteArray data = mTcpServerConnection->readAll();
     qDebug() << mTcpServerConnection->peerAddress();
     QByteArray originalData = data;
@@ -78,10 +78,10 @@ void TcpServerHandler::readTcpPacket()
     //If the roomId is Debug, send back the recieved header
     if(mRoomId == "Debug")
     {
-         returnData.append(27);
-         returnData.prepend(int(1));
-         sendTcpPacket(mTcpServerConnection, returnData);
-         return;
+        returnData.append(27);
+        returnData.prepend(int(1));
+        sendTcpPacket(mTcpServerConnection, returnData);
+        return;
     }
     //sendTcpPacket(mTcpServerConnection,returnData);
 
@@ -114,7 +114,13 @@ void TcpServerHandler::readTcpPacket()
                 mRoomsHandler->initialInsert(mRoomId, mStreamId, mDisplayName, header, mTcpServerConnection);
                 SendAndRecieveFromEveryParticipantInRoom(header);
                 /*
+=======
+
+                mRoomsHandler->initialInsert(roomId, streamId, QString::number(mTcpServerConnection->peerAddress().toIPv4Address()), header, mTcpServerConnection);
+
+>>>>>>> 753274aeea8811c7bad285fdf3501173356f8137
                 std::map<QString, std::vector<QVariant>>::iterator i;
+
                 QByteArray tempArr;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
@@ -126,13 +132,16 @@ void TcpServerHandler::readTcpPacket()
                         tempArr.append(27);
                         QPointer<QTcpSocket> qTcpSocket = i->second[3].value<QPointer<QTcpSocket>>();
                         QtConcurrent::run(sendHeader, qTcpSocket, header);
+
                     }
                 }
                 tempArr.prepend(mRoomsHandler->mMap[roomId].size() - 1);
                 //sendTcpPacket(mTcpServerConnection, tempArr);
                 //Sends all headers currently in the map back to sender.
+
                 sendHeader(mTcpServerConnection, tempArr);
                 */
+
 
 
             }
