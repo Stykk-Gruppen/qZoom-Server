@@ -24,7 +24,7 @@ public:
     void initialInsert(QString roomId, QString streamId, QString ipAddress,
                        QByteArray header, QTcpSocket* qTcpSocket);
     void updateHeader(QString roomId, QString streamId, QByteArray header);
-    void removeParticipant(QString roomId, QString streamId);
+    bool removeParticipant(QString roomId, QString streamId);
     void updateDisplayName(QString roomId, QString streamId, QString displayName);
 
     std::map<QString, std::map<QString, Participant*>> mMap;

@@ -25,6 +25,7 @@ private:
     static int sendTcpPacket(QTcpSocket*, QByteArray arr);
     static void sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue);
     void sendParticipantRemovalNotice(QString roomId, QString streamId);
+    void sendYourHeaderToEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header);
     void SendAndRecieveFromEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header, QTcpSocket *readSocket);
     void sendUpdatedDisplayNameToEveryParticipantInRoom(QString roomId, QString streamId, QString displayName);
 
