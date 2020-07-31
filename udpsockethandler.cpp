@@ -88,8 +88,8 @@ void UdpSocketHandler::readPendingDatagrams()
                         }
                         else
                         {
-                            mRoomsHandler->removeParticipant(roomId, streamId);
-                            sendParticipantRemovalNotice(roomId, streamId);
+                            //mRoomsHandler->removeParticipant(roomId, streamId);
+                            //sendParticipantRemovalNotice(roomId, streamId);
                         }
                        // qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
                     }
@@ -108,7 +108,7 @@ void UdpSocketHandler::readPendingDatagrams()
     }
 }
 
-void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
+/*void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
 {
     QByteArray data;
     std::map<QString, Participant*>::iterator i;
@@ -121,7 +121,7 @@ void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString stre
         QTcpSocket* qTcpSocket = i->second->getTcpSocket();
         sendTcpPacket(qTcpSocket, data);
     }
-}
+}*/
 
 int UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
 {

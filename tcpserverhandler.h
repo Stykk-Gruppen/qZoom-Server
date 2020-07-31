@@ -24,10 +24,11 @@ private:
     enum mTcpHeaderValues { VIDEO_HEADER, DEAD_PARTICIPANT, NEW_DISPLAY_NAME };
     static int sendTcpPacket(QTcpSocket*, QByteArray arr);
     static void sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue);
+    void socketDiconnected(QString roomId, QString streamId);
+    void sendParticipantRemovalNotice(QString roomId, QString streamId)
     void SendAndRecieveFromEveryParticipantInRoom(QByteArray header);
     void sendUpdatedDisplayNameToEveryParticipantInRoom();
     RoomsHandler* mRoomsHandler;
-    QHostAddress mSenderAddress;
     QTcpSocket *mTcpServerConnection = nullptr;
     QTcpServer* mTcpServer;
     uint16_t mPort;

@@ -24,13 +24,37 @@ void TcpServerHandler::acceptTcpConnection()
 
     connect(mTcpServerConnection, &QIODevice::readyRead, this, &TcpServerHandler::readTcpPacket);
     //connect(tcpServerConnection, &QAbstractSocket::errorOccurred, this, &SocketHandler::displayError);
-    connect(mTcpServerConnection, &QTcpSocket::disconnected, mTcpServerConnection, &QTcpSocket::deleteLater);
+
     //mTcpServer->close();
 }
 
+void TcpServerHandler::socketDiconnected(QString roomId, QString streamId)
+{
+    mRoomsHandler->removeParticipant(roomId, streamId);
+    sendParticipantRemovalNotice(roomId, streamId);
+}
+
+void TcpServerHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
+{
+    QByteArray data;
+    std::map<QString, Participant*>::iterator i;
+    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
+    {
+        data.prepend(streamId.toLocal8Bit().data());
+        data.prepend(streamId.size());
+        // 1 = remove participant
+        data.prepend(int(1));
+        QTcpSocket* qTcpSocket = i->second->getTcpSocket();
+        sendTcpPacket(qTcpSocket, data);
+    }
+}
+
+
 void TcpServerHandler::readTcpPacket()
 {
-    mSenderAddress = mTcpServerConnection->peerAddress();
+    QTcpSocket* readSocket = qobject_cast<QTcpSocket*>(sender());
+    QHostAddress senderAddress = readSocket->peerAddress();
+    senderAddress = mTcpServerConnection->peerAddress();
     QByteArray data = mTcpServerConnection->readAll();
     qDebug() << mTcpServerConnection->peerAddress();
     QByteArray originalData = data;
@@ -68,7 +92,7 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "roomId: " << mRoomId;
     qDebug() << "displayName: " << mDisplayName;
 
-
+    connect(mTcpServerConnection, &QTcpSocket::disconnected, this, SIGNAL(&TcpServerHandler::socketDiconnected(roomId,streamId)));
 
     /*qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
