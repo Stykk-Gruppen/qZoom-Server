@@ -26,7 +26,7 @@ private:
     static void sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue);
     void SendAndRecieveFromEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header, QTcpSocket *readSocket);
     void sendHeaderToEveryParticipant(QString roomId, QString streamId, QByteArray header, int headerCode);
-
+    void setupDisconnectAction(QTcpSocket* readSocket, QString roomId, QString streamId);
     RoomsHandler* mRoomsHandler;
     QTcpServer* mTcpServer;
     int mPortNumber;
