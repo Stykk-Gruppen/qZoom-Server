@@ -202,7 +202,7 @@ void TcpServerHandler::readTcpPacket()
             }
             else
             {
-                qDebug() << "Could not find streamID (" << roomId << ") in roomSession (Database)";
+                qDebug() << "Could not find streamID (" << streamId << ") in roomSession (Database)";
             }
         }
     }
@@ -232,6 +232,12 @@ void TcpServerHandler::readTcpPacket()
 void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue)
 {
     //Prepend headervalue
+    if(!receiverSocket)
+    {
+        qDebug() << "Did not find socket " << Q_FUNC_INFO;
+        return;
+    }
+    qDebug() << "header data: " << data;
     data.prepend(headerValue);
     int ret = receiverSocket->write(data, data.size());
     if(ret < 0)
@@ -278,7 +284,6 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
             tempArr.append(27);
             QTcpSocket* qTcpSocket = i->second->getTcpSocket();
             qDebug() << "REJOIN, sending header from:" << streamId << " to: " << i->first ;
-
             sendHeader(qTcpSocket, header, VIDEO_HEADER);
         }
     }

@@ -78,12 +78,12 @@ void UdpSocketHandler::readPendingDatagrams()
                 std::map<QString, Participant*>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
-                    if(mSenderAddress != i->second->getTcpSocket()->peerAddress())
+                    if(i->second->getTcpSocket() && mSenderAddress != i->second->getTcpSocket()->peerAddress())
                     {
                         if (i->second->getTcpSocket()->isWritable())
                         {
                             QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second->getTcpSocket()->peerAddress());
-                            qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second->getTcpSocket()->peerAddress().toIPv4Address() << i->first;
+                            //qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second->getTcpSocket()->peerAddress().toIPv4Address() << i->first;
                         }
                         else
                         {
