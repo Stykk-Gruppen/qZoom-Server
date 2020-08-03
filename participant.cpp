@@ -1,7 +1,7 @@
 #include "participant.h"
 
 Participant::Participant(QString _displayName, QByteArray _header, QTcpSocket* _tcpSocket)
-    : mDisplayName(_displayName), mHeader(_header), mTcpSocket(_tcpSocket)
+    : mDisplayName(_displayName), mVideoHeader(_header), mTcpSocket(_tcpSocket)
 {
 
 }
@@ -14,7 +14,7 @@ Participant::~Participant()
 
 void Participant::setHeader(QByteArray header)
 {
-    mHeader = header;
+    mVideoHeader = header;
 }
 
 void Participant::setDisplayName(QString displayName)
@@ -27,9 +27,9 @@ QString Participant::getDisplayName()
     return mDisplayName;
 }
 
-QByteArray Participant::getHeader()
+QByteArray Participant::getVideoHeader()
 {
-    return mHeader;
+    return mVideoHeader;
 }
 
 QTcpSocket* Participant::getTcpSocket()

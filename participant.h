@@ -11,11 +11,11 @@ public:
     void setHeader(QByteArray header);
     void setDisplayName(QString displayName);
     QString getDisplayName();
-    QByteArray getHeader();
+    QByteArray getVideoHeader();
     QTcpSocket* getTcpSocket();
 private:
     QString mDisplayName;
-    QByteArray mHeader;
+    QByteArray mVideoHeader;
     QTcpSocket* mTcpSocket;
 
 };

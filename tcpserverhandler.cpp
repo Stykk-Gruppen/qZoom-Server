@@ -24,39 +24,7 @@ void TcpServerHandler::acceptTcpConnection()
 
     connect(mTcpServerConnection, &QIODevice::readyRead, this, &TcpServerHandler::readTcpPacket);
     //connect(tcpServerConnection, &QAbstractSocket::errorOccurred, this, &SocketHandler::displayError);
-
-    //mTcpServer->close();
 }
-
-/*
-void TcpServerHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
-{
-    QByteArray data;
-    data.prepend(streamId.toLocal8Bit().data());
-    data.prepend(streamId.size());
-    data.prepend(int(REMOVE_PARTICIPANT));
-    std::map<QString, Participant*>::iterator i;
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
-    {
-        QTcpSocket* qTcpSocket = i->second->getTcpSocket();
-        sendTcpPacket(qTcpSocket, data);
-    }
-}
-
-void TcpServerHandler::sendParticipantMutedNotice(QString roomId, QString streamId)
-{
-    QByteArray data;
-    data.prepend(streamId.toLocal8Bit().data());
-    data.prepend(streamId.size());
-    data.prepend(int(VIDEO_DISABLED));
-    std::map<QString, Participant*>::iterator i;
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
-    {
-        QTcpSocket* qTcpSocket = i->second->getTcpSocket();
-        sendTcpPacket(qTcpSocket, data);
-    }
-}
-*/
 
 /**
  * When this socket disconnects, we first attempt to remove the user from the roomSession.
@@ -124,7 +92,6 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "roomId: " << roomId;
     qDebug() << "displayName: " << displayName;
 
-
     setupDisconnectAction(readSocket, roomId, streamId);
 
     /*qDebug() << "streamId: " << streamId;
@@ -156,8 +123,7 @@ void TcpServerHandler::readTcpPacket()
             {
             case VIDEO_HEADER:
             {
-                mRoomsHandler->updateHeader(roomId, streamId, headerDataWithDisplayNameAndStreamId);
-                //sendUpdatedDisplayNameToEveryParticipantInRoom(roomId, streamId, displayName);
+                mRoomsHandler->updateVideoHeader(roomId, streamId, data);
                 sendHeaderToEveryParticipant(roomId, streamId, headerDataWithDisplayNameAndStreamId, VIDEO_HEADER);
                 break;
             }
@@ -197,7 +163,7 @@ void TcpServerHandler::readTcpPacket()
             if (q.exec() && q.size() > 0)
             {
                 q.next();
-                mRoomsHandler->initialInsert(roomId, streamId, displayName, headerDataWithDisplayNameAndStreamId, readSocket);
+                mRoomsHandler->initialInsert(roomId, streamId, displayName, data, readSocket);
                 SendAndRecieveFromEveryParticipantInRoom(roomId, streamId, headerDataWithDisplayNameAndStreamId, readSocket);
             }
             else
@@ -217,7 +183,7 @@ void TcpServerHandler::readTcpPacket()
         {
             while (q.next())
             {
-                mRoomsHandler->initialInsert(roomId, streamId, displayName, headerDataWithDisplayNameAndStreamId, readSocket);
+                mRoomsHandler->initialInsert(roomId, streamId, displayName, data, readSocket);
                 qDebug() << "Added: " << roomId << " to Map with ipv4: ";
             }
         }
@@ -246,26 +212,6 @@ void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, i
     }
 }
 
-/*
-void TcpServerHandler::sendYourHeaderToEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header)
-{
-    std::map<QString, Participant*>::iterator i;
-    //Prepend number of headers
-    header.prepend(int(1));
-    //Append end of header char
-    header.append(27);
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
-    {
-        if (i->first != streamId)
-        {
-            QTcpSocket* qTcpSocket = i->second->getTcpSocket();
-            qDebug() << "UNMUTE, sending header from:" << streamId << " to: " << i->first ;
-            sendHeader(qTcpSocket, header, VIDEO_HEADER);
-        }
-    }
-}
-*/
-
 void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header, QTcpSocket* readSocket)
 {
     QByteArray tempArr;
@@ -278,7 +224,17 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
     {
         if (i->first != streamId)
         {
-            QByteArray participantHeader = i->second->getHeader();
+            QByteArray participantHeader = i->second->getVideoHeader();
+            //StreamID
+            participantHeader.prepend(i->first.toLocal8Bit().data());
+            participantHeader.prepend(i->first.size());
+
+            participantHeader.prepend(i->second->getDisplayName().toLocal8Bit().data());
+            participantHeader.prepend(i->second->getDisplayName().size());
+
+            participantHeader.prepend(roomId.toLocal8Bit().data());
+            participantHeader.prepend(roomId.size());
+
             tempArr.append(participantHeader);
             //Append end of header char
             tempArr.append(27);
@@ -293,30 +249,6 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
     sendHeader(readSocket, tempArr, VIDEO_HEADER);
     //qDebug() << "After sending all headers in map to: " << streamId;
 }
-
-/*
-void TcpServerHandler::sendUpdatedDisplayNameToEveryParticipantInRoom(QString roomId, QString streamId, QString displayName)
-{
-    QByteArray header;
-    header.prepend(streamId.toLocal8Bit().data());
-    header.prepend(streamId.size());
-
-    header.prepend(displayName.toLocal8Bit().data());
-    header.prepend(displayName.size());
-
-    std::map<QString, Participant*>::iterator i;
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
-    {
-
-        if (i->first != streamId)
-        {
-            qDebug() << "Sending new displayName (" << displayName << ") to :" << i->first;
-            QTcpSocket* qTcpSocket = i->second->getTcpSocket();
-            sendHeader(qTcpSocket, header, NEW_DISPLAY_NAME);
-        }
-    }
-}
-*/
 
 void TcpServerHandler::sendHeaderToEveryParticipant(QString roomId, QString streamId, QByteArray header, int headerCode)
 {

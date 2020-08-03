@@ -11,7 +11,7 @@ void RoomsHandler::initialInsert(QString roomId, QString streamId, QString displ
     qDebug() << "Added streamId, displayName, header and QTcpSocket:" << streamId << displayName << "to the map after confirming with database";
 }
 
-void RoomsHandler::updateHeader(QString roomId, QString streamId, QByteArray header)
+void RoomsHandler::updateVideoHeader(QString roomId, QString streamId, QByteArray header)
 {
     mMap[roomId][streamId]->setHeader(header);
 }
