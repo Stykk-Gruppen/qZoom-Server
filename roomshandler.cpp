@@ -38,7 +38,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
     q.bindValue(":roomId", roomId);
     if (q.exec())
     {
-        if(q.size() >= 1)
+        if(q.numRowsAffected() >= 1)
         {
             qDebug() << "Removed participant" << streamId << "from the roomSession" << roomId;
         }

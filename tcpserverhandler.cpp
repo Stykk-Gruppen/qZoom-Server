@@ -77,7 +77,7 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, QString roo
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
             //TODO change to REMOVE_PARTICIPANT?
-            sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_DISABLED);
+            sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, REMOVE_PARTICIPANT);
 
             //sendParticipantRemovalNotice(roomId, streamId);
         }
@@ -148,7 +148,6 @@ void TcpServerHandler::readTcpPacket()
     {
         if (mRoomsHandler->mMap[roomId].count(streamId))
         {
-            qDebug() << "Found room and streamId, case: " <<data[0];
             QByteArray defaultSendHeader;
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
@@ -184,7 +183,7 @@ void TcpServerHandler::readTcpPacket()
             }
             default:
             {
-                qDebug() << "Could not parse header code";
+                qDebug() << "Could not parse header code: " << data[0];
             }
             }
         }
