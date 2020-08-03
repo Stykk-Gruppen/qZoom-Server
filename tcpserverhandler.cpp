@@ -123,12 +123,14 @@ void TcpServerHandler::readTcpPacket()
             {
             case VIDEO_HEADER:
             {
+                qDebug() << "video header case";
                 mRoomsHandler->updateVideoHeader(roomId, streamId, data);
                 sendHeaderToEveryParticipant(roomId, streamId, headerDataWithDisplayNameAndStreamId, VIDEO_HEADER);
                 break;
             }
             case NEW_DISPLAY_NAME:
             {
+                qDebug() << "new name case";
                 mRoomsHandler->updateDisplayName(roomId, streamId, displayName);
 
                 defaultSendHeader.prepend(displayName.toLocal8Bit().data());
@@ -139,11 +141,13 @@ void TcpServerHandler::readTcpPacket()
             }
             case VIDEO_DISABLED:
             {
+                qDebug() << "video disabled case";
                 sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_DISABLED);
                 break;
             }
             case AUDIO_DISABLED:
             {
+                qDebug() << "audio disabled case";
                 sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, AUDIO_DISABLED);
                 break;
             }
@@ -232,8 +236,8 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
             participantHeader.prepend(i->second->getDisplayName().toLocal8Bit().data());
             participantHeader.prepend(i->second->getDisplayName().size());
 
-            participantHeader.prepend(roomId.toLocal8Bit().data());
-            participantHeader.prepend(roomId.size());
+           // participantHeader.prepend(roomId.toLocal8Bit().data());
+           // participantHeader.prepend(roomId.size());
 
             tempArr.append(participantHeader);
             //Append end of header char
@@ -259,9 +263,9 @@ void TcpServerHandler::sendHeaderToEveryParticipant(QString roomId, QString stre
     std::map<QString, Participant*>::iterator i;
     for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
     {
-        qDebug() << "Sending new displayName to :" << i->first;
         if (i->first != streamId)
         {
+            qDebug() << "Sending new headers from " << streamId << " to :" << i->first << " header code: " << headerCode;
             QTcpSocket* qTcpSocket = i->second->getTcpSocket();
             sendHeader(qTcpSocket, header, headerCode);
         }

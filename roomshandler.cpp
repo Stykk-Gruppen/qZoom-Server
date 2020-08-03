@@ -30,7 +30,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
         qDebug() << "roomId and streamId combo did not exist in map" << Q_FUNC_INFO;
     }
     mMap[roomId].erase(streamId);
-    //qDebug() << mMap;
+
     QSqlQuery q(Database::mDb);
     //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
     q.prepare("DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId)");
@@ -41,6 +41,8 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
         if(q.numRowsAffected() >= 1)
         {
             qDebug() << "Removed participant" << streamId << "from the roomSession" << roomId;
+            qDebug() << "Map after erase: " << mMap;
+            qDebug() << "adr: " << &mMap;
         }
         else
         {

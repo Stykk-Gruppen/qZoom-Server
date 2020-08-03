@@ -78,7 +78,7 @@ void UdpSocketHandler::readPendingDatagrams()
                 std::map<QString, Participant*>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
-                    if(i->second->getTcpSocket() && mSenderAddress != i->second->getTcpSocket()->peerAddress())
+                    if(i->second && i->second->getTcpSocket() && mSenderAddress != i->second->getTcpSocket()->peerAddress())
                     {
                         if (i->second->getTcpSocket()->isWritable())
                         {
