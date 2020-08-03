@@ -70,18 +70,16 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, QString roo
 {
     connect(readSocket, &QTcpSocket::disconnected, [=] ()
     {
+        mRoomsHandler->mMutex->lock();
         bool sqlSuccess = mRoomsHandler->removeParticipant(roomId, streamId);
         if(sqlSuccess)
         {
             QByteArray defaultSendHeader;
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
-            //TODO change to REMOVE_PARTICIPANT?
-            sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_DISABLED);
-
-            //sendParticipantRemovalNotice(roomId, streamId);
+            sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, REMOVE_PARTICIPANT);
         }
-
+        mRoomsHandler->mMutex->unlock();
     });
 }
 
@@ -148,12 +146,12 @@ void TcpServerHandler::readTcpPacket()
     {
         if (mRoomsHandler->mMap[roomId].count(streamId))
         {
-            qDebug() << "Found room and streamId, case: " <<data[0];
+            qDebug() << "Found room and streamId, case: " << data[0];
             QByteArray defaultSendHeader;
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
 
-            switch(data[0])
+            switch((int)data[0])
             {
             case VIDEO_HEADER:
             {
@@ -185,6 +183,7 @@ void TcpServerHandler::readTcpPacket()
             default:
             {
                 qDebug() << "Could not parse header code";
+                break;
             }
             }
         }
