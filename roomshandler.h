@@ -31,6 +31,7 @@ public:
 
 private:
     uint16_t mPort = 1337;
+    void removeGuestFromUserTable(QString streamId);
 };
 
 #endif // ROOMSHANDLER_H

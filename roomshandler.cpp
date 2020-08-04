@@ -21,6 +21,56 @@ void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString d
     mMap[roomId][streamId]->setDisplayName(displayName);
 }
 
+void RoomsHandler::removeGuestFromUserTable(QString streamId)
+{
+    QSqlQuery q(Database::mDb);
+    bool isGuest = false;
+    //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
+    q.prepare("SELECT isGuest FROM user WHERE streamId = :streamId)");
+    q.bindValue(":streamId", streamId);
+    if (q.exec())
+    {
+        if (q.size() > 0 && q.next())
+        {
+
+            isGuest = q.value(0).toBool();
+        }
+        else
+        {
+            qDebug() << "Failed to find streamId: " << streamId << " " << q.lastQuery();
+            return;
+        }
+    }
+    else
+    {
+        qDebug() << "Failed Query" << Q_FUNC_INFO << " " << q.lastError();
+        return;
+    }
+    if(isGuest)
+    {
+        q.prepare("DELETE FROM user WHERE streamId = :streamId)");
+        q.bindValue(":streamId", streamId);
+        if (q.exec())
+        {
+            if(q.numRowsAffected() >= 1)
+            {
+                qDebug() << "Removed user: " << streamId;
+                return;
+            }
+            else
+            {
+                qDebug() << "Number of rows deleted: " << q.numRowsAffected() << " " << Q_FUNC_INFO;
+                return;
+            }
+        }
+        else
+        {
+            qDebug() << "Failed Query" << Q_FUNC_INFO << " " << q.lastError();
+            return;
+        }
+    }
+}
+
 bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
 {
     //qDebug() << mMap;
@@ -44,6 +94,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
     {
         if(q.numRowsAffected() >= 1)
         {
+            removeGuestFromUserTable(streamId);
             qDebug() << "Removed participant" << streamId << "from the roomSession" << roomId;
             qDebug() << "Map after erase: " << mMap;
             qDebug() << "adr: " << &mMap;
