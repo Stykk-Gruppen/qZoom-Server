@@ -46,7 +46,10 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, QString roo
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
             //TODO change to REMOVE_PARTICIPANT?
-            sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, REMOVE_PARTICIPANT);
+            if(mRoomsHandler->mMap.count(roomId))
+            {
+                sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, REMOVE_PARTICIPANT);
+            }
         }
         mRoomsHandler->mMutex->unlock();
     });
@@ -128,44 +131,44 @@ void TcpServerHandler::readTcpPacket()
 
 
 
-                switch((int)data[0])
-                {
-                case VIDEO_HEADER:
-                {
-                    qDebug() << "video header case";
-                    mRoomsHandler->updateVideoHeader(roomId, streamId, data);
-                    sendHeaderToEveryParticipant(roomId, streamId, headerDataWithDisplayNameAndStreamId, VIDEO_HEADER);
-                    break;
-                }
-                case NEW_DISPLAY_NAME:
-                {
-                    qDebug() << "new name case";
-                    mRoomsHandler->updateDisplayName(roomId, streamId, displayName);
+            switch((int)data[0])
+            {
+            case VIDEO_HEADER:
+            {
+                qDebug() << "video header case";
+                mRoomsHandler->updateVideoHeader(roomId, streamId, data);
+                sendHeaderToEveryParticipant(roomId, streamId, headerDataWithDisplayNameAndStreamId, VIDEO_HEADER);
+                break;
+            }
+            case NEW_DISPLAY_NAME:
+            {
+                qDebug() << "new name case";
+                mRoomsHandler->updateDisplayName(roomId, streamId, displayName);
 
-                    defaultSendHeader.prepend(displayName.toLocal8Bit().data());
-                    defaultSendHeader.prepend(displayName.size());
+                defaultSendHeader.prepend(displayName.toLocal8Bit().data());
+                defaultSendHeader.prepend(displayName.size());
 
-                    sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, NEW_DISPLAY_NAME);
-                    break;
-                }
-                case VIDEO_DISABLED:
-                {
-                    qDebug() << "video disabled case";
-                    sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_DISABLED);
-                    break;
-                }
-                case AUDIO_DISABLED:
-                {
-                    qDebug() << "audio disabled case";
-                    sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, AUDIO_DISABLED);
-                    break;
-                }
-                default:
-                {
-                    qDebug() << "Could not parse header code: " << data[0];
-                    break;
-                }
-                }
+                sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, NEW_DISPLAY_NAME);
+                break;
+            }
+            case VIDEO_DISABLED:
+            {
+                qDebug() << "video disabled case";
+                sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_DISABLED);
+                break;
+            }
+            case AUDIO_DISABLED:
+            {
+                qDebug() << "audio disabled case";
+                sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, AUDIO_DISABLED);
+                break;
+            }
+            default:
+            {
+                qDebug() << "Could not parse header code: " << data[0];
+                break;
+            }
+            }
 
         }
         else

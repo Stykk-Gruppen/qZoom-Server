@@ -83,6 +83,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
     if(mMap[roomId].size()<1)
     {
         mMap.erase(roomId);
+        qDebug() << "roomId " << roomId << " was empty,  deleting";
     }
 
     QSqlQuery q(Database::mDb);
