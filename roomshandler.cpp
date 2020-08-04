@@ -43,12 +43,12 @@ void RoomsHandler::removeGuestFromUserTable(QString streamId)
     }
     else
     {
-        qDebug() << "Failed Query" << Q_FUNC_INFO << " " << q.lastError();
+        qDebug() << "Failed Query" << Q_FUNC_INFO << " error: " << q.lastError() << " query: " <<q.lastQuery() ;
         return;
     }
     if(isGuest)
     {
-        q.prepare("DELETE FROM user WHERE streamId = :streamId)");
+        q.prepare("DELETE FROM user WHERE streamId = :streamId");
         q.bindValue(":streamId", streamId);
         if (q.exec())
         {
@@ -65,7 +65,7 @@ void RoomsHandler::removeGuestFromUserTable(QString streamId)
         }
         else
         {
-            qDebug() << "Failed Query" << Q_FUNC_INFO << " " << q.lastError();
+            qDebug() << "Failed Query" << Q_FUNC_INFO << " error: " << q.lastError() << " query: " <<q.lastQuery() ;
             return;
         }
     }
