@@ -26,7 +26,7 @@ void RoomsHandler::removeGuestFromUserTable(QString streamId)
     QSqlQuery q(Database::mDb);
     bool isGuest = false;
     //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
-    q.prepare("SELECT isGuest FROM user WHERE streamId = :streamId)");
+    q.prepare("SELECT isGuest FROM user WHERE streamId = :streamId");
     q.bindValue(":streamId", streamId);
     if (q.exec())
     {
