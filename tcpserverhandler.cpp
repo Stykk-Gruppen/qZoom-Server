@@ -60,7 +60,7 @@ void TcpServerHandler::readTcpPacket()
     QHostAddress senderAddress = readSocket->peerAddress();
 
     QByteArray data = readSocket->readAll();
-    qDebug() << "data: " << data;
+    //qDebug() << "data: " << data;
 
     // QByteArray originalData = data;
     int roomIdLength = data[0];
@@ -95,8 +95,8 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "roomId: " << roomId;
     qDebug() << "displayName: " << displayName;
     qDebug() << "map: " << mRoomsHandler->mMap;
-    qDebug() << "map adr: " << &mRoomsHandler->mMap;
-    qDebug() << "data: " << data;
+    //qDebug() << "map adr: " << &mRoomsHandler->mMap;
+    //qDebug() << "data: " << data;
     setupDisconnectAction(readSocket, roomId, streamId);
 
     /*qDebug() << "streamId: " << streamId;
@@ -120,7 +120,7 @@ void TcpServerHandler::readTcpPacket()
         //TODO remove data.size
         if (mRoomsHandler->mMap[roomId].count(streamId) && data.size()>=1)
         {
-            qDebug() << "Found room and streamId, case: " << data[0];
+            //qDebug() << "Found room and streamId, case: " << data[0];
             QByteArray defaultSendHeader;
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
@@ -203,7 +203,7 @@ void TcpServerHandler::readTcpPacket()
         }
         else
         {
-            qDebug() << "Could not find roomId (" << roomId << ") in Database " << "streamId: " << streamId;
+            qDebug() << "Could not find the roomId (" << roomId << ") and streamId(" << streamId << ") combo in the database";
         }
     }
     mRoomsHandler->mMutex->unlock();
