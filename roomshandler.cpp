@@ -24,12 +24,16 @@ void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString d
 bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
 {
     //qDebug() << mMap;
-    if(!mMap[roomId][streamId])
+    /*if(!mMap[roomId][streamId])
     {
         return false;
         qDebug() << "roomId and streamId combo did not exist in map" << Q_FUNC_INFO;
-    }
+    }*/
     mMap[roomId].erase(streamId);
+    if(mMap[roomId].size()<1)
+    {
+        mMap.erase(roomId);
+    }
 
     QSqlQuery q(Database::mDb);
     //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
@@ -46,7 +50,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
         }
         else
         {
-            qDebug() << "Number of rows deleted " << q.size();
+            qDebug() << "Number of rows deleted " << q.numRowsAffected();
         }
     }
     else
