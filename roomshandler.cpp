@@ -115,3 +115,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
     return true;
 }
 
+QSqlDatabase RoomsHandler::getDb()
+{
+    return mDatabase->mDb;
+}
