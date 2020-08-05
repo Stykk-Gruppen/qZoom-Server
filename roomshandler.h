@@ -28,6 +28,7 @@ public:
     void updateDisplayName(QString roomId, QString streamId, QString displayName);
     std::map<QString, std::map<QString, Participant*>> mMap;
     std::mutex* mMutex;
+    QSqlDatabase getDb();
     Database* mDatabase;
 
 private:

@@ -41,6 +41,8 @@ void SqlTcpServerHandler::readTcpPacket()
     int queryCode = data[0];
     data.remove(0, 1);
 
+    qDebug() << "queryCode:" << queryCode;
+
     switch (queryCode)
     {
     case 0:
@@ -60,6 +62,9 @@ void SqlTcpServerHandler::readTcpPacket()
         QByteArray roomPasswordArray = QByteArray(data, length);
         QString roomPassword(roomPasswordArray);
         data.remove(0, length);
+
+        qDebug() << "roomId:" << roomId;
+        qDebug() << "roomPassword:" << roomPassword;
 
 
 
@@ -106,6 +111,7 @@ QByteArray SqlTcpServerHandler::buildResponseByteArray(std::vector<QString> vec)
 
 int SqlTcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
 {
+    qDebug() << arr;
     int ret = socket->write(arr, arr.size());
     if(ret < 0)
     {
