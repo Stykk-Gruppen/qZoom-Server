@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include "udpsockethandler.h"
 #include "tcpserverhandler.h"
+#include "sqltcpserverhandler.h"
 #include "roomshandler.h"
 #include <iostream>
 
@@ -39,9 +40,13 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    RoomsHandler* roomsHandler = new RoomsHandler();
+    int portNumberSQL = 1339;
+
+    Database* db = new Database();
+    RoomsHandler* roomsHandler = new RoomsHandler(db);
     UdpSocketHandler* udpSocket = new UdpSocketHandler(roomsHandler, portNumberUDP);
     TcpServerHandler* tcpServer = new TcpServerHandler(roomsHandler, portNumberTCP);
+    SqlTcpServerHandler* sqlTcpServer = new SqlTcpServerHandler(portNumberSQL, db);
     //tcpServer->initTcpServer();
     //int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
     //roomsHandler->startRemovalTimer(oldParticipantsRemovalIntervalValue);

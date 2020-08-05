@@ -174,7 +174,7 @@ void TcpServerHandler::readTcpPacket()
         else
         {
             qDebug() << "found room, didnt find streamId";
-            QSqlQuery q(mRoomsHandler->Database::mDb);
+            QSqlQuery q(mRoomsHandler->mDatabase->mDb);
             q.prepare("SELECT * FROM roomSession, user WHERE roomSession.userId = user.id AND user.streamId = :streamId");
             q.bindValue(":streamId", streamId);
             if (q.exec() && q.size() > 0)
@@ -192,7 +192,7 @@ void TcpServerHandler::readTcpPacket()
     else
     {
         qDebug() << "did not find room or streamId";
-        QSqlQuery q(mRoomsHandler->Database::mDb);
+        QSqlQuery q(mRoomsHandler->mDatabase->mDb);
         q.prepare("SELECT * FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
         q.bindValue(":roomId", roomId);
         q.bindValue(":streamId", streamId);

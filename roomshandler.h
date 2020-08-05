@@ -16,10 +16,10 @@
 #include <QTcpSocket>
 #include "participant.h"
 
-class RoomsHandler : public Database
+class RoomsHandler
 {
 public:
-    RoomsHandler();
+    RoomsHandler(Database* _database);
     void startRemovalTimer(int seconds);
     void initialInsert(QString roomId, QString streamId, QString ipAddress,
                        QByteArray header, QTcpSocket* qTcpSocket);
@@ -28,6 +28,7 @@ public:
     void updateDisplayName(QString roomId, QString streamId, QString displayName);
     std::map<QString, std::map<QString, Participant*>> mMap;
     std::mutex* mMutex;
+    Database* mDatabase;
 
 private:
     uint16_t mPort = 1337;

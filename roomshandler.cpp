@@ -1,7 +1,8 @@
 #include "roomshandler.h"
 
-RoomsHandler::RoomsHandler()
+RoomsHandler::RoomsHandler(Database* _database)
 {
+    mDatabase = _database;
     mMutex = new std::mutex;
 }
 
@@ -23,7 +24,7 @@ void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString d
 
 void RoomsHandler::removeGuestFromUserTable(QString streamId)
 {
-    QSqlQuery q(Database::mDb);
+    QSqlQuery q(mDatabase->mDb);
     bool isGuest = false;
     //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
     q.prepare("SELECT isGuest FROM user WHERE streamId = :streamId");
@@ -86,7 +87,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
         qDebug() << "roomId " << roomId << " was empty,  deleting";
     }
 
-    QSqlQuery q(Database::mDb);
+    QSqlQuery q(mDatabase->mDb);
     //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
     q.prepare("DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId)");
     q.bindValue(":streamId", streamId);
