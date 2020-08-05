@@ -166,6 +166,7 @@ void SqlTcpServerHandler::readTcpPacket()
                 retVec.push_back(q.value(0).toString());
                 retVec.push_back(q.value(1).toString());
                 retVec.push_back(q.value(2).toString());
+                retVec.push_back(q.value(3).toString());
                 sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
             }
             else
@@ -197,6 +198,7 @@ void SqlTcpServerHandler::readTcpPacket()
             else
             {
                 qDebug() << "SQL: Failed select" << queryCode;
+                sendTcpPacket(mTcpServerConnection, sendFalse());
             }
         }
         else
@@ -280,6 +282,13 @@ void SqlTcpServerHandler::readTcpPacket()
         break;
     }
     }
+}
+
+QByteArray SqlTcpServerHandler::sendFalse()
+{
+    qDebug() << "Sending False..";
+    QByteArray arr;
+    return arr;
 }
 
 std::vector<QString> SqlTcpServerHandler::parseData(QByteArray arr)
