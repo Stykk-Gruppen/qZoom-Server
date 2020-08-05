@@ -20,6 +20,7 @@ private:
     void readTcpPacket();
     int sendTcpPacket(QTcpSocket *socket, QByteArray arr);
     QByteArray buildResponseByteArray(std::vector<QString> vec);
+    std::vector<QString> parseData(QByteArray arr);
     QTcpServer* mTcpServer;
     QTcpSocket* mTcpServerConnection;
     Database* mDb;

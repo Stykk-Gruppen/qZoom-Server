@@ -36,6 +36,7 @@ void SqlTcpServerHandler::readTcpPacket()
     //common variables used in cases
     int length;
     std::vector<QString> retVec;
+    std::vector<QString> vec;
 
 
     int queryCode = data[0];
@@ -49,33 +50,14 @@ void SqlTcpServerHandler::readTcpPacket()
     {
         //q.prepare("SELECT r.id, r.password, u.username FROM room AS r, user AS u WHERE r.host = u.id AND r.id = :roomId AND r.password = :roomPassword");
 
-        length = data[0];
-        data.remove(0, 1);
-
-        QByteArray roomIdArray = QByteArray(data, length);
-        QString roomId(roomIdArray);
-        data.remove(0, length);
-
-        length = data[0];
-        data.remove(0, 1);
-
-        QByteArray roomPasswordArray = QByteArray(data, length);
-        QString roomPassword(roomPasswordArray);
-        data.remove(0, length);
-
-        qDebug() << "roomId:" << roomId;
-        qDebug() << "roomPassword:" << roomPassword;
-
-
-
-
-
-
+        vec = parseData(data);
+        qDebug() << "RoomId:" << vec[0];
+        qDebug() << "RoomPassword:" << vec[1];
 
         QSqlQuery q(mDb->mDb);
         q.prepare("SELECT r.id, r.password, u.username FROM room AS r, user AS u WHERE r.host = u.id AND r.id = :roomId AND r.password = :roomPassword");
-        q.bindValue(":roomId", roomId);
-        q.bindValue(":roomPassword", roomPassword);
+        q.bindValue(":roomId", vec[0]);
+        q.bindValue(":roomPassword", vec[1]);
         if (q.exec())
         {
             if (q.size() > 0)
@@ -98,6 +80,27 @@ void SqlTcpServerHandler::readTcpPacket()
     }
 }
 
+std::vector<QString> SqlTcpServerHandler::parseData(QByteArray arr)
+{
+    std::vector<QString> vec;
+
+    int size = arr[0];
+    arr.remove(0, 1);
+
+    for (int i = 0; i < size; i++)
+    {
+        int length = arr[0];
+        arr.remove(0, 1);
+        QByteArray tmpArr = QByteArray(arr, length);
+        QString str(tmpArr);
+        arr.remove(0, length);
+
+        vec.push_back(str);
+    }
+    return vec;
+}
+
+
 QByteArray SqlTcpServerHandler::buildResponseByteArray(std::vector<QString> vec)
 {
     QByteArray arr;
@@ -106,6 +109,7 @@ QByteArray SqlTcpServerHandler::buildResponseByteArray(std::vector<QString> vec)
         arr.prepend(vec[i].size());
         arr.prepend(vec[i].toUtf8().data());
     }
+    arr.prepend(vec.size());
     return arr;
 }
 

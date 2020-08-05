@@ -121,15 +121,12 @@ void TcpServerHandler::readTcpPacket()
     if(mRoomsHandler->mMap.count(roomId))
     {
         //TODO remove data.size
-        if (mRoomsHandler->mMap[roomId].count(streamId) && data.size()>=1)
+        if (mRoomsHandler->mMap[roomId].count(streamId) && data.size() >= 1)
         {
             //qDebug() << "Found room and streamId, case: " << data[0];
             QByteArray defaultSendHeader;
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
-
-
-
 
             switch((int)data[0])
             {
