@@ -82,7 +82,8 @@ void UdpSocketHandler::readPendingDatagrams()
                     {
                         if (i->second->getTcpSocket()->isWritable())
                         {
-                            QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second->getTcpSocket()->peerAddress());
+                            sendDatagram(returnData,i->second->getTcpSocket()->peerAddress());
+                            //QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second->getTcpSocket()->peerAddress());
                             //qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second->getTcpSocket()->peerAddress().toIPv4Address() << i->first;
                         }
                         else
