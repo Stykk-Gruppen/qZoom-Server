@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
     }
 
     RoomsHandler* roomsHandler = new RoomsHandler();
-    UdpSocketHandler* udpSocket = new UdpSocketHandler(roomsHandler,portNumberUDP);
-    TcpServerHandler* tcpServer = new TcpServerHandler(roomsHandler,portNumberTCP);
+    UdpSocketHandler* udpSocket = new UdpSocketHandler(roomsHandler, portNumberUDP);
+    TcpServerHandler* tcpServer = new TcpServerHandler(roomsHandler, portNumberTCP);
     //tcpServer->initTcpServer();
     //int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
     //roomsHandler->startRemovalTimer(oldParticipantsRemovalIntervalValue);

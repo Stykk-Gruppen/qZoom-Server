@@ -22,6 +22,7 @@ SOURCES += \
         main.cpp \
         participant.cpp \
         roomshandler.cpp \
+        sqltcpserverhandler.cpp \
         tcpserverhandler.cpp \
         udpsockethandler.cpp
 
@@ -34,5 +35,6 @@ HEADERS += \
     database.h \
     participant.h \
     roomshandler.h \
+    sqltcpserverhandler.h \
     tcpserverhandler.h \
     udpsockethandler.h
