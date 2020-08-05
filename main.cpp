@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     parser.process(a);
 
     qDebug() << "qZoom-Server running Qt Version: " << QT_VERSION_STR;
-    int portNumberTCP = parser.isSet(udpPortNumber) ? parser.value(udpPortNumber).toInt() : 1338;
+    int portNumberTCP = parser.isSet(tcpPortNumber) ? parser.value(tcpPortNumber).toInt() : 1338;
     if(portNumberTCP<1024 && portNumberTCP>49151)
     {
         printf("TCP port number was not valid, needs to be larger than 1024 and smaller than 49151");
