@@ -217,7 +217,7 @@ void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, i
         qDebug() << "Did not find socket " << Q_FUNC_INFO;
         return;
     }
-    qDebug() << "header data: " << data;
+    //qDebug() << "header data: " << data;
     data.prepend(headerValue);
     int ret = receiverSocket->write(data, data.size());
     if(ret < 0)
