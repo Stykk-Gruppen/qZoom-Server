@@ -49,14 +49,14 @@ void SqlTcpServerHandler::readTcpPacket()
         vec = parseData(data);
         QSqlQuery q(mDb->mDb);
         q.prepare("SELECT r.id, r.password, u.username FROM room AS r, user AS u WHERE r.host = u.id AND r.id = :roomId AND r.password = :roomPassword");
-        q.bindValue(":roomId", vec[0].toInt());
+        q.bindValue(":roomId", vec[0]);
         q.bindValue(":roomPassword", vec[1]);
         if (q.exec())
         {
             if (q.size() > 0)
             {
                 q.next();
-                retVec.push_back(QString::number(q.value(0).toInt()));
+                retVec.push_back(q.value(0).toString());
                 retVec.push_back(q.value(1).toString());
                 retVec.push_back(q.value(2).toString());
                 sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
@@ -77,7 +77,7 @@ void SqlTcpServerHandler::readTcpPacket()
         vec = parseData(data);
         QSqlQuery q(mDb->mDb);
         q.prepare("INSERT INTO roomSession (roomId, userId) VALUES (:roomId, :userId)");
-        q.bindValue(":roomId", vec[0].toInt());
+        q.bindValue(":roomId", vec[0]);
         q.bindValue(":userId", vec[1].toInt());
         if (q.exec())
         {
@@ -95,7 +95,7 @@ void SqlTcpServerHandler::readTcpPacket()
         vec = parseData(data);
         QSqlQuery q(mDb->mDb);
         q.prepare("INSERT INTO room (id, host, password) VALUES (:id, :host, :password)");
-        q.bindValue(":id", vec[0].toInt());
+        q.bindValue(":id", vec[0]);
         q.bindValue(":host", vec[1].toInt());
         q.bindValue(":password", vec[2]);
         if (q.exec())
@@ -191,7 +191,7 @@ void SqlTcpServerHandler::readTcpPacket()
             if (q.size() > 0)
             {
                 q.next();
-                retVec.push_back(QString::number(q.value(0).toInt()));
+                retVec.push_back(q.value(0).toString());
                 retVec.push_back(q.value(1).toString());
                 sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
             }
@@ -212,7 +212,7 @@ void SqlTcpServerHandler::readTcpPacket()
         vec = parseData(data);
         QSqlQuery q(mDb->mDb);
         q.prepare("UPDATE room SET id = :roomId, password = :roomPassword WHERE host = :host");
-        q.bindValue(":roomId", vec[0].toInt());
+        q.bindValue(":roomId", vec[0]);
         q.bindValue(":roomPassword", vec[1]);
         q.bindValue(":host", vec[2].toInt());
         if (q.exec())
@@ -288,6 +288,7 @@ QByteArray SqlTcpServerHandler::sendFalse()
 {
     qDebug() << "Sending False..";
     QByteArray arr;
+    arr.prepend(int(0));
     return arr;
 }
 
