@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    int portNumberSQL = parser.isSet(udpPortNumber) ? parser.value(udpPortNumber).toInt() : 1339;
+    int portNumberSQL = parser.isSet(sqlPortNumber) ? parser.value(sqlPortNumber).toInt() : 1339;
     if(portNumberUDP < 1024 || portNumberUDP > 49151)
     {
         printf("SQL-TCP port number was not valid, needs to be larger than 1024 and smaller than 49151");
