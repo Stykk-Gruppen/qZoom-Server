@@ -24,7 +24,7 @@ void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString d
 
 void RoomsHandler::removeGuestFromUserTable(QString streamId)
 {
-    QSqlQuery q(mDatabase->mDb);
+    QSqlQuery q(mDatabase->getDb());
     bool isGuest = false;
     //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
     q.prepare("SELECT isGuest FROM user WHERE streamId = :streamId");
@@ -72,6 +72,16 @@ void RoomsHandler::removeGuestFromUserTable(QString streamId)
     }
 }
 
+std::map<QString, std::map<QString, Participant *> > RoomsHandler::getMap() const
+{
+    return mMap;
+}
+
+std::mutex *RoomsHandler::getMutex() const
+{
+    return mMutex;
+}
+
 bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
 {
     //qDebug() << mMap;
@@ -87,7 +97,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
         qDebug() << "roomId " << roomId << " was empty,  deleting";
     }
 
-    QSqlQuery q(mDatabase->mDb);
+    QSqlQuery q(mDatabase->getDb());
     //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
     q.prepare("DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId)");
     q.bindValue(":streamId", streamId);
@@ -115,7 +125,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
     return true;
 }
 
-QSqlDatabase RoomsHandler::getDb()
+QSqlDatabase RoomsHandler::getDb() const
 {
-    return mDatabase->mDb;
+    return mDatabase->getDb();
 }

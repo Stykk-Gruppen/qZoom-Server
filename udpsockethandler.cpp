@@ -71,12 +71,13 @@ void UdpSocketHandler::readPendingDatagrams()
         }
 
        // mRoomsHandler->mMutex->lock();//Maybe we do not need this mutex?
-        if(mRoomsHandler->mMap.count(roomId))
+        if(mRoomsHandler->getMap().count(roomId))
+
         {
-            if (mRoomsHandler->mMap[roomId].count(streamId))
+            if (mRoomsHandler->getMap()[roomId].count(streamId))
             {
                 std::map<QString, Participant*>::iterator i;
-                for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
+                for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
                 {
                     if(i->second && i->second->getTcpSocket() && senderAddress != i->second->getTcpSocket()->peerAddress())
                     {
@@ -107,21 +108,6 @@ void UdpSocketHandler::readPendingDatagrams()
         //mRoomsHandler->mMutex->unlock();
     }
 }
-
-/*void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
-{
-    QByteArray data;
-    std::map<QString, Participant*>::iterator i;
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
-    {
-        data.prepend(streamId.toLocal8Bit().data());
-        data.prepend(streamId.size());
-        // 1 = remove participant
-        data.prepend(int(1));
-        QTcpSocket* qTcpSocket = i->second->getTcpSocket();
-        sendTcpPacket(qTcpSocket, data);
-    }
-}*/
 
 void UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
 {

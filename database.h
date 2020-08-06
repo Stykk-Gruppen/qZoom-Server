@@ -9,7 +9,10 @@ class Database
 public:
     Database();
     ~Database();
-    bool connectDatabase();
+    QSqlDatabase getDb() const;
+
+private:
+    bool connectToDatabase();
     QSqlDatabase mDb;
 };
 

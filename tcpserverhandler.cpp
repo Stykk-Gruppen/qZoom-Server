@@ -38,7 +38,7 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, QString roo
 {
     connect(readSocket, &QTcpSocket::disconnected, [=] ()
     {
-        mRoomsHandler->mMutex->lock();
+        mRoomsHandler->getMutex()->lock();
         bool sqlSuccess = mRoomsHandler->removeParticipant(roomId, streamId);
         if(sqlSuccess)
         {
@@ -46,12 +46,12 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, QString roo
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
             //TODO change to REMOVE_PARTICIPANT?
-            if(mRoomsHandler->mMap.count(roomId))
+            if(mRoomsHandler->getMap().count(roomId))
             {
                 sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, REMOVE_PARTICIPANT);
             }
         }
-        mRoomsHandler->mMutex->unlock();
+        mRoomsHandler->getMutex()->unlock();
     });
 }
 
@@ -97,7 +97,7 @@ void TcpServerHandler::readTcpPacket()
     qDebug() << "streamId: " << streamId;
     qDebug() << "roomId: " << roomId;
     qDebug() << "displayName: " << displayName;
-    qDebug() << "map: " << mRoomsHandler->mMap;
+    qDebug() << "map: " << mRoomsHandler->getMap();
     //qDebug() << "map adr: " << &mRoomsHandler->mMap;
     //qDebug() << "data: " << data;
     setupDisconnectAction(readSocket, roomId, streamId);
@@ -117,11 +117,11 @@ void TcpServerHandler::readTcpPacket()
     }
     //sendTcpPacket(mTcpServerConnection,returnData);
 
-    mRoomsHandler->mMutex->lock();
-    if(mRoomsHandler->mMap.count(roomId))
+    mRoomsHandler->getMutex()->lock();
+    if(mRoomsHandler->getMap().count(roomId))
     {
         //TODO remove data.size
-        if (mRoomsHandler->mMap[roomId].count(streamId) && data.size() >= 1)
+        if (mRoomsHandler->getMap()[roomId].count(streamId) && data.size() >= 1)
         {
             //qDebug() << "Found room and streamId, case: " << data[0];
             QByteArray defaultSendHeader;
@@ -171,7 +171,7 @@ void TcpServerHandler::readTcpPacket()
         else
         {
             qDebug() << "found room, didnt find streamId";
-            QSqlQuery q(mRoomsHandler->mDatabase->mDb);
+            QSqlQuery q(mRoomsHandler->getDb());
             q.prepare("SELECT * FROM roomSession, user WHERE roomSession.userId = user.id AND user.streamId = :streamId");
             q.bindValue(":streamId", streamId);
             if (q.exec() && q.size() > 0)
@@ -189,7 +189,7 @@ void TcpServerHandler::readTcpPacket()
     else
     {
         qDebug() << "did not find room or streamId";
-        QSqlQuery q(mRoomsHandler->mDatabase->mDb);
+        QSqlQuery q(mRoomsHandler->getDb());
         q.prepare("SELECT * FROM roomSession AS rs, user AS u WHERE rs.roomId = :roomId AND rs.userId = u.id AND u.streamId = :streamId");
         q.bindValue(":roomId", roomId);
         q.bindValue(":streamId", streamId);
@@ -206,7 +206,7 @@ void TcpServerHandler::readTcpPacket()
             qDebug() << "Could not find the roomId (" << roomId << ") and streamId(" << streamId << ") combo in the database";
         }
     }
-    mRoomsHandler->mMutex->unlock();
+    mRoomsHandler->getMutex()->unlock();
 }
 
 void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue)
@@ -234,7 +234,7 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
     header.prepend(int(1));
     //Append end of header char
     header.append(27);
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
+    for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
     {
         //TODO figure out why map gets populated by a streamId and nullptr
         if (i->first != streamId && i->second)
@@ -259,7 +259,7 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
         }
     }
     //Prepend number of headers
-    tempArr.prepend(mRoomsHandler->mMap[roomId].size() - 1);
+    tempArr.prepend(mRoomsHandler->getMap()[roomId].size() - 1);
     qDebug() << "Sending all headers " << /*tempArr << */ " in map to: " << streamId;
     sendHeader(readSocket, tempArr, VIDEO_HEADER);
     //qDebug() << "After sending all headers in map to: " << streamId;
@@ -272,13 +272,13 @@ void TcpServerHandler::sendHeaderToEveryParticipant(QString roomId, QString stre
     //Append end of header char
     header.append(27);
     std::map<QString, Participant*>::iterator i;
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
+    for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
     {
         //TODO figure out why map gets populated by a streamId and nullptr
         if (i->first != streamId && i->second)
         {
             qDebug() << "Sending new headers from " << streamId << " to :" << i->first << " header code: " << headerCode;
-            qDebug() << Q_FUNC_INFO << " map: " << mRoomsHandler->mMap;
+            qDebug() << Q_FUNC_INFO << " map: " << mRoomsHandler->getMap();
             QTcpSocket* qTcpSocket = i->second->getTcpSocket();
             sendHeader(qTcpSocket, header, headerCode);
         }
