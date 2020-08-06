@@ -47,7 +47,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 0:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("SELECT r.id, r.password, u.username FROM room AS r, user AS u WHERE r.host = u.id AND r.id = :roomId AND r.password = :roomPassword");
         q.bindValue(":roomId", vec[0]);
         q.bindValue(":roomPassword", vec[1]);
@@ -75,7 +75,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 1:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("INSERT INTO roomSession (roomId, userId) VALUES (:roomId, :userId)");
         q.bindValue(":roomId", vec[0]);
         q.bindValue(":userId", vec[1].toInt());
@@ -93,7 +93,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 2:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("INSERT INTO room (id, host, password) VALUES (:id, :host, :password)");
         q.bindValue(":id", vec[0]);
         q.bindValue(":host", vec[1].toInt());
@@ -112,7 +112,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 3:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("INSERT INTO user (streamId, username, password, isGuest) VALUES (substring(MD5(RAND()),1,16), :username, substring(MD5(RAND()),1,16), TRUE)");
         q.bindValue(":username", vec[0]);
         if (q.exec())
@@ -129,7 +129,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 4:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("SELECT id, password FROM user WHERE username = :username");
         q.bindValue(":username", vec[0]);
         if (q.exec())
@@ -155,7 +155,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 5:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("SELECT streamId, username, password, timeCreated FROM user WHERE id = :userId");
         q.bindValue(":userId", vec[0].toInt());
         if (q.exec())
@@ -183,7 +183,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 6:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("SELECT id, password FROM room WHERE host = :userId");
         q.bindValue(":userId", vec[0].toInt());
         if (q.exec())
@@ -210,7 +210,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 7:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("UPDATE room SET id = :roomId, password = :roomPassword WHERE host = :host");
         q.bindValue(":roomId", vec[0]);
         q.bindValue(":roomPassword", vec[1]);
@@ -229,7 +229,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 8:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("SELECT streamId FROM user WHERE id = :id");
         q.bindValue(":id", vec[0].toInt());
         if (q.exec())
@@ -254,7 +254,7 @@ void SqlTcpServerHandler::readTcpPacket()
     case 9:
     {
         vec = parseData(data);
-        QSqlQuery q(mDb->mDb);
+        QSqlQuery q(mDb->getDb());
         q.prepare("SELECT id FROM user WHERE username = :username");
         q.bindValue(":username", vec[0]);
         if (q.exec())
@@ -284,7 +284,7 @@ void SqlTcpServerHandler::readTcpPacket()
     }
 }
 
-QByteArray SqlTcpServerHandler::sendFalse()
+QByteArray SqlTcpServerHandler::sendFalse() const
 {
     qDebug() << "Sending False..";
     QByteArray arr;
@@ -292,10 +292,9 @@ QByteArray SqlTcpServerHandler::sendFalse()
     return arr;
 }
 
-std::vector<QString> SqlTcpServerHandler::parseData(QByteArray arr)
+std::vector<QString> SqlTcpServerHandler::parseData(QByteArray arr) const
 {
     std::vector<QString> vec;
-
     int size = arr[0];
     arr.remove(0, 1);
 
@@ -312,7 +311,7 @@ std::vector<QString> SqlTcpServerHandler::parseData(QByteArray arr)
 }
 
 
-QByteArray SqlTcpServerHandler::buildResponseByteArray(std::vector<QString> vec)
+QByteArray SqlTcpServerHandler::buildResponseByteArray(std::vector<QString> vec) const
 {
     QByteArray arr;
     for (unsigned long i = 0; i < vec.size(); i++)

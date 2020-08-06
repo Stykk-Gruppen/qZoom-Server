@@ -22,17 +22,17 @@ void Participant::setDisplayName(QString displayName)
     mDisplayName = displayName;
 }
 
-QString Participant::getDisplayName()
+QString Participant::getDisplayName() const
 {
     return mDisplayName;
 }
 
-QByteArray Participant::getVideoHeader()
+QByteArray Participant::getVideoHeader() const
 {
     return mVideoHeader;
 }
 
-QTcpSocket* Participant::getTcpSocket()
+QTcpSocket* Participant::getTcpSocket() const
 {
     return mTcpSocket;
 }

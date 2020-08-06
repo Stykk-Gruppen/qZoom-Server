@@ -19,14 +19,13 @@ public:
     UdpSocketHandler(RoomsHandler* _roomsHandler, int portNumber, QObject *parent = nullptr);
     void initSocket();
     void readPendingDatagrams(); //Må kanskje være void for connect enn så lenge
+
 private:
     void sendDatagram(QByteArray arr, QHostAddress addr);
-    //void sendParticipantRemovalNotice(QString roomId, QString streamId);
     void sendTcpPacket(QTcpSocket *socket, QByteArray arr);
-    RoomsHandler* mRoomsHandler;
-    QHostAddress mSenderAddress;
-    QUdpSocket* mUdpSocket;
     int mPortNumber;
+    RoomsHandler* mRoomsHandler;
+    QUdpSocket* mUdpSocket;
 };
 
 #endif // UDPSOCKETHANDLER_H

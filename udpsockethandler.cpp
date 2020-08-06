@@ -35,7 +35,7 @@ void UdpSocketHandler::readPendingDatagrams()
     {
         QString firstHeader = "";
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
-        mSenderAddress = datagram.senderAddress();
+        QHostAddress senderAddress = datagram.senderAddress();
 
         QByteArray originalData = datagram.data();
         QByteArray data = originalData;
@@ -66,19 +66,19 @@ void UdpSocketHandler::readPendingDatagrams()
         //If the roomId is Debug, send back the same datagram
         if(roomId == "Debug")
         {
-            sendDatagram(returnData, mSenderAddress);
+            sendDatagram(returnData, senderAddress);
             continue;
         }
 
-        mRoomsHandler->mMutex->lock();
-        if(mRoomsHandler->mMap.count(roomId))
+        mRoomsHandler->getMutex()->lock();
+        if(mRoomsHandler->getMap().count(roomId))
         {
-            if (mRoomsHandler->mMap[roomId].count(streamId))
+            if (mRoomsHandler->getMap()[roomId].count(streamId))
             {
                 std::map<QString, Participant*>::iterator i;
-                for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
+                for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
                 {
-                    if(i->second && i->second->getTcpSocket() && mSenderAddress != i->second->getTcpSocket()->peerAddress())
+                    if(i->second && i->second->getTcpSocket() && senderAddress != i->second->getTcpSocket()->peerAddress())
                     {
                         if (i->second->getTcpSocket()->isWritable())
                         {
@@ -104,24 +104,9 @@ void UdpSocketHandler::readPendingDatagrams()
         {
             //qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
-        mRoomsHandler->mMutex->unlock();
+        mRoomsHandler->getMutex()->unlock();
     }
 }
-
-/*void UdpSocketHandler::sendParticipantRemovalNotice(QString roomId, QString streamId)
-{
-    QByteArray data;
-    std::map<QString, Participant*>::iterator i;
-    for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
-    {
-        data.prepend(streamId.toLocal8Bit().data());
-        data.prepend(streamId.size());
-        // 1 = remove participant
-        data.prepend(int(1));
-        QTcpSocket* qTcpSocket = i->second->getTcpSocket();
-        sendTcpPacket(qTcpSocket, data);
-    }
-}*/
 
 void UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
 {

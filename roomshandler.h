@@ -26,14 +26,16 @@ public:
     void updateVideoHeader(QString roomId, QString streamId, QByteArray header);
     bool removeParticipant(QString roomId, QString streamId);
     void updateDisplayName(QString roomId, QString streamId, QString displayName);
-    std::map<QString, std::map<QString, Participant*>> mMap;
-    std::mutex* mMutex;
-    QSqlDatabase getDb();
-    Database* mDatabase;
+    QSqlDatabase getDb() const;
+    std::mutex *getMutex() const;
+    std::map<QString, std::map<QString, Participant *> > getMap() const;
 
 private:
-    uint16_t mPort = 1337;
     void removeGuestFromUserTable(QString streamId);
+    std::map<QString, std::map<QString, Participant*>> mMap;
+    std::mutex* mMutex;
+    uint16_t mPort = 1337;
+    Database* mDatabase;
 };
 
 #endif // ROOMSHANDLER_H

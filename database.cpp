@@ -4,7 +4,7 @@
 
 Database::Database()
 {
-    if (connectDatabase())
+    if (connectToDatabase())
     {
         qDebug() << "The database is open";
     }
@@ -20,7 +20,7 @@ Database::~Database()
     QSqlDatabase::removeDatabase("QMYSQL");
 }
 
-bool Database::connectDatabase()
+bool Database::connectToDatabase()
 {
     mDb = QSqlDatabase::addDatabase("QMYSQL");
     mDb.setHostName(dbHostName);
@@ -29,4 +29,9 @@ bool Database::connectDatabase()
     mDb.setPassword(dbPassword);
     //qDebug() << mDb.lastError();
     return mDb.open();
+}
+
+QSqlDatabase Database::getDb() const
+{
+    return mDb;
 }

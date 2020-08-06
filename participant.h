@@ -10,9 +10,9 @@ public:
     ~Participant();
     void setHeader(QByteArray header);
     void setDisplayName(QString displayName);
-    QString getDisplayName();
-    QByteArray getVideoHeader();
-    QTcpSocket* getTcpSocket();
+    QString getDisplayName() const;
+    QByteArray getVideoHeader() const;
+    QTcpSocket* getTcpSocket() const;
 private:
     QString mDisplayName;
     QByteArray mVideoHeader;
