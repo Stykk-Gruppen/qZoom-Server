@@ -35,7 +35,7 @@ void UdpSocketHandler::readPendingDatagrams()
     {
         QString firstHeader = "";
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
-        mSenderAddress = datagram.senderAddress();
+        QHostAddress senderAddress = datagram.senderAddress();
 
         QByteArray originalData = datagram.data();
         QByteArray data = originalData;
@@ -66,11 +66,11 @@ void UdpSocketHandler::readPendingDatagrams()
         //If the roomId is Debug, send back the same datagram
         if(roomId == "Debug")
         {
-            sendDatagram(returnData, mSenderAddress);
+            sendDatagram(returnData, senderAddress);
             continue;
         }
 
-        mRoomsHandler->mMutex->lock();
+       // mRoomsHandler->mMutex->lock();//Maybe we do not need this mutex?
         if(mRoomsHandler->mMap.count(roomId))
         {
             if (mRoomsHandler->mMap[roomId].count(streamId))
@@ -78,7 +78,7 @@ void UdpSocketHandler::readPendingDatagrams()
                 std::map<QString, Participant*>::iterator i;
                 for (i = mRoomsHandler->mMap[roomId].begin(); i != mRoomsHandler->mMap[roomId].end(); i++)
                 {
-                    if(i->second && i->second->getTcpSocket() && mSenderAddress != i->second->getTcpSocket()->peerAddress())
+                    if(i->second && i->second->getTcpSocket() && senderAddress != i->second->getTcpSocket()->peerAddress())
                     {
                         if (i->second->getTcpSocket()->isWritable())
                         {
@@ -104,7 +104,7 @@ void UdpSocketHandler::readPendingDatagrams()
         {
             //qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
-        mRoomsHandler->mMutex->unlock();
+        //mRoomsHandler->mMutex->unlock();
     }
 }
 
