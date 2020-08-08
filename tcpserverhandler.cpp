@@ -34,7 +34,7 @@ void TcpServerHandler::acceptTcpConnection()
  * @param roomId QString which room the user belongs to
  * @param streamId QString identifier for the user
  */
-void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, QString roomId, QString streamId)
+void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, const QString& roomId, const QString& streamId)
 {
     connect(readSocket, &QTcpSocket::disconnected, [=] ()
     {
@@ -223,7 +223,7 @@ void TcpServerHandler::readTcpPacket()
     mRoomsHandler->getMutex()->unlock();
 }
 
-void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue)
+void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, const int& headerValue)
 {
     //Prepend headervalue
     if(!receiverSocket)
@@ -280,7 +280,7 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(const QString& r
     //qDebug() << "After sending all headers in map to: " << streamId;
 }
 
-void TcpServerHandler::sendHeaderToEveryParticipant(QString roomId, QString streamId, QByteArray header, int headerCode)
+void TcpServerHandler::sendHeaderToEveryParticipant(const QString& roomId, const QString& streamId, QByteArray header, const int& headerCode)
 {
     //Prepend number of headers
     header.prepend(int(1));

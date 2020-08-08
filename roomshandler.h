@@ -20,18 +20,17 @@ class RoomsHandler
 {
 public:
     RoomsHandler(Database* _database);
-    void startRemovalTimer(int seconds);
-    void initialInsert(QString roomId, QString streamId, QString ipAddress,
-                       QByteArray header, QTcpSocket* qTcpSocket);
-    void updateVideoHeader(QString roomId, QString streamId, QByteArray header);
-    bool removeParticipant(QString roomId, QString streamId);
-    void updateDisplayName(QString roomId, QString streamId, QString displayName);
+    void initialInsert(const QString& roomId, const QString& streamId, const QString& displayName,
+                       const QByteArray& header, QTcpSocket* qTcpSocket);
+    void updateVideoHeader(const QString& roomId, const QString& streamId, const QByteArray& header);
+    bool removeParticipant(const QString& roomId, const QString& streamId);
+    void updateDisplayName(const QString& roomId, const QString& streamId, const QString& displayName);
     QSqlDatabase getDb() const;
     std::mutex *getMutex() const;
     const std::map<QString, std::map<QString, Participant *> > getMap() const;
 
 private:
-    void removeGuestFromUserTable(QString streamId);
+    void removeGuestFromUserTable(const QString& streamId);
     std::map<QString, std::map<QString, Participant*>> mMap;
     std::mutex* mMutex;
     uint16_t mPort = 1337;

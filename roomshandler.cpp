@@ -6,23 +6,24 @@ RoomsHandler::RoomsHandler(Database* _database)
     mMutex = new std::mutex;
 }
 
-void RoomsHandler::initialInsert(QString roomId, QString streamId, QString displayName, QByteArray header, QTcpSocket* qTcpSocket)
+void RoomsHandler::initialInsert(const QString& roomId, const QString& streamId,
+                                 const QString& displayName, const QByteArray& header, QTcpSocket* qTcpSocket)
 {
     mMap[roomId][streamId] = new Participant(displayName, header, qTcpSocket);
     qDebug() << "Added streamId, displayName, header and QTcpSocket:" << streamId << displayName << "to the map after confirming with database";
 }
 
-void RoomsHandler::updateVideoHeader(QString roomId, QString streamId, QByteArray header)
+void RoomsHandler::updateVideoHeader(const QString& roomId, const QString& streamId, const QByteArray& header)
 {
-    mMap[roomId][streamId]->setHeader(header);
+    mMap.at(roomId).at(streamId)->setHeader(header);
 }
 
-void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString displayName)
+void RoomsHandler::updateDisplayName(const QString& roomId, const QString& streamId, const QString& displayName)
 {
-    mMap[roomId][streamId]->setDisplayName(displayName);
+    mMap.at(roomId).at(streamId)->setDisplayName(displayName);
 }
 
-void RoomsHandler::removeGuestFromUserTable(QString streamId)
+void RoomsHandler::removeGuestFromUserTable(const QString& streamId)
 {
     QSqlQuery q(mDatabase->getDb());
     bool isGuest = false;
@@ -82,7 +83,7 @@ std::mutex *RoomsHandler::getMutex() const
     return mMutex;
 }
 
-bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
+bool RoomsHandler::removeParticipant(const QString& roomId, const QString& streamId)
 {
     //qDebug() << mMap;
     /*if(!mMap[roomId][streamId])
@@ -90,8 +91,8 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
         return false;
         qDebug() << "roomId and streamId combo did not exist in map" << Q_FUNC_INFO;
     }*/
-    mMap[roomId].erase(streamId);
-    if(mMap[roomId].size() < 1)
+    mMap.at(roomId).erase(streamId);
+    if(mMap.at(roomId).size() < 1)
     {
         mMap.erase(roomId);
         qDebug() << "roomId " << roomId << " was empty,  deleting";

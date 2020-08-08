@@ -19,7 +19,7 @@ void UdpSocketHandler::initSocket()
     qDebug() << "UDP Listening on port:" << mPortNumber;
 }
 
-void UdpSocketHandler::sendDatagram(QByteArray arr, QHostAddress addr)
+void UdpSocketHandler::sendDatagram(const QByteArray& arr, const QHostAddress& addr)
 {
     //qDebug() << participantAddress;
     int error = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(addr), mPortNumber);
@@ -109,7 +109,7 @@ void UdpSocketHandler::readPendingDatagrams()
     }
 }
 
-void UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
+void UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, const QByteArray& arr)
 {
     int error = socket->write(arr, arr.size());
     if(error < 0)

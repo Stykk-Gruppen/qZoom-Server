@@ -12,12 +12,12 @@ Participant::~Participant()
     delete mTcpSocket;
 }
 
-void Participant::setHeader(QByteArray header)
+void Participant::setHeader(const QByteArray& header)
 {
     mVideoHeader = header;
 }
 
-void Participant::setDisplayName(QString displayName)
+void Participant::setDisplayName(const QString& displayName)
 {
     mDisplayName = displayName;
 }
