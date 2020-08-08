@@ -28,7 +28,7 @@ public:
     void updateDisplayName(QString roomId, QString streamId, QString displayName);
     QSqlDatabase getDb() const;
     std::mutex *getMutex() const;
-    std::map<QString, std::map<QString, Participant *> > getMap() const;
+    const std::map<QString, std::map<QString, Participant *> > getMap() const;
 
 private:
     void removeGuestFromUserTable(QString streamId);

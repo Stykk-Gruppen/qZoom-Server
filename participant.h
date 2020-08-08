@@ -12,7 +12,7 @@ public:
     void setDisplayName(QString displayName);
     QString getDisplayName() const;
     QByteArray getVideoHeader() const;
-    QTcpSocket* getTcpSocket() const;
+    QTcpSocket* getTcpSocket();
 private:
     QString mDisplayName;
     QByteArray mVideoHeader;

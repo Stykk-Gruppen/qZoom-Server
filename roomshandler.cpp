@@ -72,7 +72,7 @@ void RoomsHandler::removeGuestFromUserTable(QString streamId)
     }
 }
 
-std::map<QString, std::map<QString, Participant *> > RoomsHandler::getMap() const
+const std::map<QString, std::map<QString, Participant *> > RoomsHandler::getMap() const
 {
     return mMap;
 }
@@ -91,7 +91,7 @@ bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
         qDebug() << "roomId and streamId combo did not exist in map" << Q_FUNC_INFO;
     }*/
     mMap[roomId].erase(streamId);
-    if(mMap[roomId].size()<1)
+    if(mMap[roomId].size() < 1)
     {
         mMap.erase(roomId);
         qDebug() << "roomId " << roomId << " was empty,  deleting";

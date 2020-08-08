@@ -74,10 +74,10 @@ void UdpSocketHandler::readPendingDatagrams()
         if(mRoomsHandler->getMap().count(roomId))
 
         {
-            if (mRoomsHandler->getMap()[roomId].count(streamId))
+            if (mRoomsHandler->getMap().at(roomId).count(streamId))
             {
-                std::map<QString, Participant*>::iterator i;
-                for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
+                std::map<QString, Participant*>::const_iterator i;
+                for (i = mRoomsHandler->getMap().at(roomId).begin(); i != mRoomsHandler->getMap().at(roomId).end(); i++)
                 {
                     if(i->second && i->second->getTcpSocket() && senderAddress != i->second->getTcpSocket()->peerAddress())
                     {

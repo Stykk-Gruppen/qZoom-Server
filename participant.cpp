@@ -32,7 +32,7 @@ QByteArray Participant::getVideoHeader() const
     return mVideoHeader;
 }
 
-QTcpSocket* Participant::getTcpSocket() const
+QTcpSocket* Participant::getTcpSocket()
 {
     return mTcpSocket;
 }
