@@ -17,7 +17,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 LIBS += -L/usr/lib -I/usr/include
 
 SOURCES += \
-        config.cpp \
         core/database.cpp \
         core/participant.cpp \
         handlers/roomshandler.cpp \

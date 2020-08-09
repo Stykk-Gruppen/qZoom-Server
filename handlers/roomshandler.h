@@ -10,7 +10,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QMultiMap>
 #include <QDateTime>
-#include "config.cpp"
 #include <QMutex>
 #include <QTcpSocket>
 #include "core/participant.h"
