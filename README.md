@@ -14,8 +14,22 @@ git clone https://github.com/Feqzz/qZoom-Server/
 cd qZoom-Server
 qmake
 make
-make install
+sudo make install
 ```
+
+## Configuration
+You have to fill in the config file with your database credentials.
+```
+cd /usr/local/qZoom-Server/config
+sudo vim qZoom-Server.conf
+```
+```
+hostname =
+databasename =
+username =
+password =
+```
+
 
 # Documentation
 The online documentation is available at this [website](https://tarves.no/docs/qZoom-Server/). Information about the process and more can be found in the client's
