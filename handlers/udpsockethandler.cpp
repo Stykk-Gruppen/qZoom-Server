@@ -45,12 +45,15 @@ void UdpSocketHandler::readPendingDatagrams()
 {
     while (mUdpSocket->hasPendingDatagrams())
     {
-        QString firstHeader = "";
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
         QHostAddress senderAddress = datagram.senderAddress();
 
-        QByteArray originalData = datagram.data();
-        QByteArray data = originalData;
+        QByteArray data = datagram.data();
+        //If 1 byte or less is being sent to the server, go to next datagram
+        if(data.size()<=1)
+        {
+            continue;
+        }
         QByteArray returnData;
 
         //roomId is the first x bytes, then streamId
