@@ -36,7 +36,11 @@ void UdpSocketHandler::sendDatagram(const QByteArray& arr, const QHostAddress& a
         qDebug() << "UDP sending error: " << error << " meaning: " << mUdpSocket->error() << " " << Q_FUNC_INFO;
     }
 }
-
+/**
+ * Reads and parse incoming data, if the roomId is Debug the same data gets returned back
+ * to the sender. We check if the data exists in the map and sends it to the
+ * correct particpants in the map.
+ */
 void UdpSocketHandler::readPendingDatagrams()
 {
     while (mUdpSocket->hasPendingDatagrams())

@@ -19,7 +19,6 @@ void RoomsHandler::initialInsert(const QString& roomId, const QString& streamId,
                                  const QString& displayName, const QByteArray& header, QTcpSocket* qTcpSocket)
 {
     mMap[roomId][streamId] = new Participant(displayName, header, qTcpSocket);
-    qDebug() << "Added streamId, displayName, header and QTcpSocket:" << streamId << displayName << "to the map after confirming with database";
 }
 
 /**
@@ -55,14 +54,12 @@ void RoomsHandler::removeGuestFromUserTable(const QString& streamId)
 {
     QSqlQuery q(mDatabase->getDb());
     bool isGuest = false;
-    //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
     q.prepare("SELECT isGuest FROM user WHERE streamId = :streamId");
     q.bindValue(":streamId", streamId);
     if (q.exec())
     {
         if (q.size() > 0 && q.next())
         {
-
             isGuest = q.value(0).toBool();
         }
         else
@@ -73,7 +70,7 @@ void RoomsHandler::removeGuestFromUserTable(const QString& streamId)
     }
     else
     {
-        qDebug() << "Failed Query" << Q_FUNC_INFO << " error: " << q.lastError() << " query: " <<q.lastQuery() ;
+        qDebug() << "Failed Query" << Q_FUNC_INFO << " error: " << q.lastError() << " query: " << q.lastQuery() ;
         return;
     }
     if(isGuest)
@@ -82,20 +79,15 @@ void RoomsHandler::removeGuestFromUserTable(const QString& streamId)
         q.bindValue(":streamId", streamId);
         if (q.exec())
         {
-            if(q.numRowsAffected() >= 1)
+            if(q.numRowsAffected() <= 0)
             {
-                qDebug() << "Removed user: " << streamId;
-                return;
-            }
-            else
-            {
-                qDebug() << "Number of rows deleted: " << q.numRowsAffected() << " " << Q_FUNC_INFO;
+                qDebug() << "Number of rows deleted: " << q.numRowsAffected() << " streamId: " << streamId << Q_FUNC_INFO;
                 return;
             }
         }
         else
         {
-            qDebug() << "Failed Query" << Q_FUNC_INFO << " error: " << q.lastError() << " query: " <<q.lastQuery() ;
+            qDebug() << "Failed Query" << Q_FUNC_INFO << " error: " << q.lastError() << " query: " << q.lastQuery() ;
             return;
         }
     }
@@ -127,7 +119,6 @@ void RoomsHandler::removeEmptyRoom(const QString& roomId)
     if(mMap.at(roomId).size() < 1)
     {
         mMap.erase(roomId);
-        qDebug() << "roomId " << roomId << " was empty,  deleting";
     }
 }
 
@@ -158,9 +149,6 @@ bool RoomsHandler::removeParticipant(const QString& roomId, const QString& strea
         if(q.numRowsAffected() >= 1)
         {
             removeGuestFromUserTable(streamId);
-            qDebug() << "Removed participant" << streamId << "from the roomSession" << roomId;
-            qDebug() << "Map after erase: " << mMap;
-            qDebug() << "adr: " << &mMap;
         }
         else
         {
