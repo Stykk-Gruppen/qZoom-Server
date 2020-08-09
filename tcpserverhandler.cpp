@@ -53,7 +53,6 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, const QStri
             QByteArray defaultSendHeader;
             defaultSendHeader.prepend(streamId.toLocal8Bit().data());
             defaultSendHeader.prepend(streamId.size());
-            //TODO change to REMOVE_PARTICIPANT?
             if(mRoomsHandler->getMap().count(roomId))
             {
                 sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, REMOVE_PARTICIPANT);
@@ -62,7 +61,14 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, const QStri
         mRoomsHandler->getMutex()->unlock();
     });
 }
-
+/**
+ * @brief TcpServerHandler::printTcpPacketInfo
+ * @param sender
+ * @param streamId
+ * @param roomId
+ * @param displayName
+ * @param entirePacket
+ */
 void TcpServerHandler::printTcpPacketInfo(QHostAddress sender, QString streamId,
                                           QString roomId, QString displayName,
                                           QByteArray entirePacket){
@@ -77,6 +83,10 @@ void TcpServerHandler::printTcpPacketInfo(QHostAddress sender, QString streamId,
     qDebug() << "Packet: " << entirePacket;
 }
 
+/**
+ * Reads and parse the data sent to this socket and takes various actions depending
+ * on the data recieved
+ */
 void TcpServerHandler::readTcpPacket()
 {
 

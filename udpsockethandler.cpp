@@ -79,7 +79,6 @@ void UdpSocketHandler::readPendingDatagrams()
         }
 
         const std::map<QString, std::map<QString, Participant*>> map = mRoomsHandler->getMap();
-       // mRoomsHandler->mMutex->lock();//Maybe we do not need this mutex?
         if(map.count(roomId))
         {
             if (map.at(roomId).count(streamId))
@@ -92,27 +91,28 @@ void UdpSocketHandler::readPendingDatagrams()
                         if (i->second->getTcpSocket()->isWritable())
                         {
                             sendDatagram(returnData, i->second->getTcpSocket()->peerAddress());
-                            //QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second->getTcpSocket()->peerAddress());
-                            //qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second->getTcpSocket()->peerAddress().toIPv4Address() << i->first;
                         }
                         else
                         {
-                            //mRoomsHandler->removeParticipant(roomId, streamId);
-                            //sendParticipantRemovalNotice(roomId, streamId);
+                            //TODO log this error
                         }
-                       // qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second[0].toUInt() << i->first;
+                    }
+                    else
+                    {
+                        //TODO log this error
                     }
                 }
             }
             else
             {
+                //TODO log this error
                 //qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
             }
         }
         else
         {
+            //TODO log this error
             //qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
-        //mRoomsHandler->mMutex->unlock();
     }
 }

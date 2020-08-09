@@ -132,7 +132,7 @@ void RoomsHandler::removeEmptyRoom(const QString& roomId)
 }
 
 /**
- * Remove a participant from a room, will also attempt to delete the room, if no
+ * Attempts to remove a participant from a room, will also attempt to delete the room, if no
  * participants is left inside the room. Will also attempt to remove the particpant
  * from the roomSession in the database. However the function will return true even if no
  * particpant was found in said room in the database.

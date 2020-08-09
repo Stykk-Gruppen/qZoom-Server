@@ -18,7 +18,7 @@ private:
     void initTcpServer();
     void acceptTcpConnection();
     void readTcpPacket();
-    int sendTcpPacket(QTcpSocket *socket, QByteArray arr);
+    void sendTcpPacket(QTcpSocket *socket, QByteArray arr);
     QByteArray buildResponseByteArray(std::vector<QString> vec) const;
     QByteArray sendFalse() const;
     std::vector<QString> parseData(QByteArray arr) const;

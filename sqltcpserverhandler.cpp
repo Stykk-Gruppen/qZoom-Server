@@ -31,7 +31,10 @@ void SqlTcpServerHandler::acceptTcpConnection()
     }
     connect(socket, &QIODevice::readyRead, this, &SqlTcpServerHandler::readTcpPacket);
 }
-
+/**
+ * Reads and parse the data sent to this socket, the first byte tells us what
+ * kind of query we need to execute and what to send back to the socket.
+ */
 void SqlTcpServerHandler::readTcpPacket()
 {
     //We get the sender object with qobject_cast, since we experienced multithreading problems using a member object
@@ -45,8 +48,6 @@ void SqlTcpServerHandler::readTcpPacket()
 
     int queryCode = data[0];
     data.remove(0, 1);
-
-    qDebug() << "queryCode:" << queryCode;
 
     switch (queryCode)
     {
@@ -289,15 +290,24 @@ void SqlTcpServerHandler::readTcpPacket()
     }
     }
 }
-
+/**
+ * If a select query fails, we need to send a single 0 byte back to the
+ * client to let it know.
+ * @return QByteArray containing a single 0 int
+ */
 QByteArray SqlTcpServerHandler::sendFalse() const
 {
-    qDebug() << "Sending False..";
     QByteArray arr;
     arr.prepend(int(0));
     return arr;
 }
-
+/**
+ * This function will parse the data to be used in the queries. The
+ * data should always be a int first, telling us how long the string is,
+ * followed by the string.
+ * @param arr QByteArray containing the data
+ * @return std::vector<QString> with all the strings parsed
+ */
 std::vector<QString> SqlTcpServerHandler::parseData(QByteArray arr) const
 {
     std::vector<QString> vec;
@@ -316,7 +326,12 @@ std::vector<QString> SqlTcpServerHandler::parseData(QByteArray arr) const
     return vec;
 }
 
-
+/**
+ * This function will iterate through the vector and build a
+ * QByteArray with the strings and their lengths.
+ * @param vec std::vector<QString>
+ * @return QByteArray with the compiled data
+ */
 QByteArray SqlTcpServerHandler::buildResponseByteArray(std::vector<QString> vec) const
 {
     QByteArray arr;
@@ -328,14 +343,16 @@ QByteArray SqlTcpServerHandler::buildResponseByteArray(std::vector<QString> vec)
     arr.prepend(vec.size());
     return arr;
 }
-
-int SqlTcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
+/**
+ * Sends the QByteArray arr using the QTcpSocket object
+ * @param socket QTcpSocket pointer
+ * @param arr QByteArray data to send
+ */
+void SqlTcpServerHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
 {
-    qDebug() << arr;
-    int ret = socket->write(arr, arr.size());
-    if(ret < 0)
+    int error = socket->write(arr, arr.size());
+    if(error < 0)
     {
         qDebug() << socket->errorString();
     }
-    return ret;
 }
