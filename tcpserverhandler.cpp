@@ -176,7 +176,6 @@ void TcpServerHandler::readTcpPacket()
             }
             case KICK_PARTICIPANT:
             {
-                qDebug() << "kick participant case";
                 //qDebug() << data;
                 data.remove(0, 1);
                 QByteArray tempArr = data;
@@ -305,7 +304,6 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(const QString& r
     }
     //Prepend number of headers
     tempArr.prepend(map.at(roomId).size() - 1);
-    qDebug() << "Sending all headers " << /*tempArr << */ " in map to: " << streamId;
     sendHeader(readSocket, tempArr, VIDEO_HEADER);
 }
 
