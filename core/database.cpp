@@ -17,17 +17,33 @@ Database::Database()
         qDebug() << "Failed to open the database";
     }
 }
-
-QString Database::findOptionVariable(int optionIndex)
+/**
+ * Iterates the mConfigurationOptions QStringList to find the m
+ * @param optionIndex
+ * @return
+ */
+int Database::findOptionIndex(QString option)
 {
     for(int j=0;j<mConfigurationOptions.size();j++)
     {
-         if(mConfigurationOptions[optionIndex].compare(mConfigurationOptions[j])==0)
+         if(option.compare(mConfigurationOptions[j])==0)
          {
-            return mConfigurationVariables[j];
+            return j;
          }
     }
-    return "";
+    return -1;
+}
+
+int Database::findRealIndex(int index)
+{
+    for(int i=0;i<mConfigurationVariablesIndices.size();i++)
+    {
+        if(mConfigurationVariablesIndices[i]==index)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void Database::parseLine(QByteArray line)
@@ -59,6 +75,7 @@ void Database::parseLine(QByteArray line)
         }
     }
     mConfigurationVariables.append(var);
+    mConfigurationVariablesIndices.append(findOptionIndex(option));
 }
 
 bool Database::readConfigurationFile()
@@ -89,10 +106,10 @@ Database::~Database()
 bool Database::connectToDatabase()
 {   
     mDb = QSqlDatabase::addDatabase("QMYSQL");
-    mDb.setHostName(findOptionVariable(0));
-    mDb.setDatabaseName(findOptionVariable(1));
-    mDb.setUserName(findOptionVariable(2));
-    mDb.setPassword(findOptionVariable(3));
+    mDb.setHostName(mConfigurationVariables[findRealIndex(HOSTNAME)]);
+    mDb.setDatabaseName(mConfigurationVariables[findRealIndex(DATABASENAME)]);
+    mDb.setUserName(mConfigurationVariables[findRealIndex(USERNAME)]);
+    mDb.setPassword(mConfigurationVariables[findRealIndex(PASSWORD)]);
     //qDebug() << mDb.lastError();
     return mDb.open();
 }

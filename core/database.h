@@ -15,10 +15,13 @@ private:
     bool readConfigurationFile();
     void parseLine(QByteArray line);
     bool connectToDatabase();
+    QList<int> mConfigurationVariablesIndices;
     QStringList mConfigurationOptions {"hostname", "databasename", "username", "password"};
+    enum mConfigurationOptionsEnum {HOSTNAME, DATABASENAME, USERNAME, PASSWORD};
     QStringList mConfigurationVariables;
     QSqlDatabase mDb;
-    QString findOptionVariable(int optionIndex);
+    int findOptionIndex(QString option);
+    int findRealIndex(int index);
 };
 
 #endif // DATABASE_H
