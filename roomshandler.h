@@ -31,6 +31,7 @@ public:
     std::map<QString, std::map<QString, Participant *> > getMap() const;
 
 private:
+    void removeEmptyRoom(QString roomId);
     void removeGuestFromUserTable(QString streamId);
     std::map<QString, std::map<QString, Participant*>> mMap;
     std::mutex* mMutex;

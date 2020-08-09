@@ -6,6 +6,10 @@ TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, int _portNumber,
     initTcpServer();
 }
 
+/**
+ * Creates a new QTcpServer objects, connects the newConnection
+ * signal with our acceptTcpConnection slot and starts listening on mPortNumber.
+ */
 void TcpServerHandler::initTcpServer()
 {
     mTcpServer = new QTcpServer();
@@ -14,20 +18,24 @@ void TcpServerHandler::initTcpServer()
     qDebug() << "TCP Listening on port:" << mPortNumber;
 }
 
+/**
+ * When the QTcpServer gets a newConnection signal, it will get the corresponding QTcpSocket
+ * and connect its readyRead signal with our readTcpPacket slot
+ */
 void TcpServerHandler::acceptTcpConnection()
 {
-    QTcpSocket* mTcpServerConnection = mTcpServer->nextPendingConnection();
-    if (!mTcpServerConnection)
+    QTcpSocket* socket = mTcpServer->nextPendingConnection();
+    if (!socket)
     {
         qDebug() << "Error: got invalid pending connection!";
     }
 
-    connect(mTcpServerConnection, &QIODevice::readyRead, this, &TcpServerHandler::readTcpPacket);
+    connect(socket, &QIODevice::readyRead, this, &TcpServerHandler::readTcpPacket);
     //connect(tcpServerConnection, &QAbstractSocket::errorOccurred, this, &SocketHandler::displayError);
 }
 
 /**
- * When this socket disconnects, we first attempt to remove the user from the roomSession.
+ * When the readSocket disconnects, we first attempt to remove the user from the roomSession.
  * If the user existed and was successfully removed from the database, a header will be sent
  * to the other participants in the room to also remove said user from their clients.
  * @param readSocket QTcpSocket* the socket to the user

@@ -20,6 +20,10 @@ Database::~Database()
     QSqlDatabase::removeDatabase("QMYSQL");
 }
 
+/**
+ * @brief Database::connectToDatabase
+ * @return true if connection was successful
+ */
 bool Database::connectToDatabase()
 {
     mDb = QSqlDatabase::addDatabase("QMYSQL");
@@ -31,6 +35,10 @@ bool Database::connectToDatabase()
     return mDb.open();
 }
 
+/**
+ * @brief Database::getDb
+ * @return QSqlDatabase
+ */
 QSqlDatabase Database::getDb() const
 {
     return mDb;

@@ -53,14 +53,9 @@ int main(int argc, char *argv[])
 
     Database* db = new Database();
     RoomsHandler* roomsHandler = new RoomsHandler(db);
-    UdpSocketHandler* udpSocket = new UdpSocketHandler(roomsHandler, portNumberUDP);
-    TcpServerHandler* tcpServer = new TcpServerHandler(roomsHandler, portNumberTCP);
-    SqlTcpServerHandler* sqlTcpServer = new SqlTcpServerHandler(portNumberSQL, db);
-    //tcpServer->initTcpServer();
-    //int oldParticipantsRemovalIntervalValue = parser.isSet(removeOldParticipantsOption) ? parser.value(removeOldParticipantsOption).toInt() : 600;
-    //roomsHandler->startRemovalTimer(oldParticipantsRemovalIntervalValue);
-
-   // roomsHandler->printMap();
+    new UdpSocketHandler(roomsHandler, portNumberUDP);
+    new TcpServerHandler(roomsHandler, portNumberTCP);
+    new SqlTcpServerHandler(portNumberSQL, db);
 
     return a.exec();
 }

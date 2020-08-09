@@ -23,7 +23,6 @@ private:
     QByteArray sendFalse() const;
     std::vector<QString> parseData(QByteArray arr) const;
     QTcpServer* mTcpServer;
-    QTcpSocket* mTcpServerConnection;
     Database* mDb;
     int mPortNumber;
 

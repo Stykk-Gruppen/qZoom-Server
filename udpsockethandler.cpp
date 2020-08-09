@@ -5,7 +5,10 @@ UdpSocketHandler::UdpSocketHandler(RoomsHandler* _roomsHandler, int _portNumber,
     mPortNumber = _portNumber;
     initSocket();
 }
-
+/**
+ * Creates a new QUdpSocket objects, connects the readyRead
+ * signal with our readPendingDatagrams slot and starts listening on mPortNumber.
+ */
 void UdpSocketHandler::initSocket()
 {
     mUdpSocket = new QUdpSocket(this);
@@ -18,14 +21,18 @@ void UdpSocketHandler::initSocket()
     mUdpSocket->bind(QHostAddress::Any, mPortNumber, QAbstractSocket::ShareAddress);
     qDebug() << "UDP Listening on port:" << mPortNumber;
 }
-
+/**
+ * Sends the QByteArray arr over UDP to the QHostAddress addr
+ * using the QUdpSocket
+ * @param arr QByteArray
+ * @param addr QHostAddress
+ */
 void UdpSocketHandler::sendDatagram(QByteArray arr, QHostAddress addr)
 {
-    //qDebug() << participantAddress;
     int error = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(addr), mPortNumber);
     if(error < 0)
     {
-        qDebug() << "UDP sending error: " << error << " meaning: " << mUdpSocket->error() << " " <<Q_FUNC_INFO;
+        qDebug() << "UDP sending error: " << error << " meaning: " << mUdpSocket->error() << " " << Q_FUNC_INFO;
     }
 }
 
@@ -109,11 +116,3 @@ void UdpSocketHandler::readPendingDatagrams()
     }
 }
 
-void UdpSocketHandler::sendTcpPacket(QTcpSocket *socket, QByteArray arr)
-{
-    int error = socket->write(arr, arr.size());
-    if(error < 0)
-    {
-        qDebug() << "TCP sending error: " << error << " meaning: " << socket->error() << " " <<Q_FUNC_INFO;
-    }
-}

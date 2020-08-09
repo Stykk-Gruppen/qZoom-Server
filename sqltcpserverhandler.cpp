@@ -6,7 +6,10 @@ SqlTcpServerHandler::SqlTcpServerHandler(int _portNumber, Database* _db, QObject
     mDb = _db;
     initTcpServer();
 }
-
+/**
+ * Creates a new QTcpServer objects, connects the newConnection
+ * signal with our acceptTcpConnection slot and starts listening on mPortNumber.
+ */
 void SqlTcpServerHandler::initTcpServer()
 {
     mTcpServer = new QTcpServer();
@@ -15,20 +18,23 @@ void SqlTcpServerHandler::initTcpServer()
     qDebug() << "SQL TCP Listening on port:" << mPortNumber;
 }
 
+/**
+ * When the QTcpServer gets a newConnection signal, it will get the corresponding QTcpSocket
+ * and connect its readyRead signal with our readTcpPacket slot
+ */
 void SqlTcpServerHandler::acceptTcpConnection()
 {
-    mTcpServerConnection = mTcpServer->nextPendingConnection();
-    if (!mTcpServerConnection)
+    QTcpSocket* socket = mTcpServer->nextPendingConnection();
+    if (!socket)
     {
         qDebug() << "Error: got invalid pending connection!";
     }
-
-    connect(mTcpServerConnection, &QIODevice::readyRead, this, &SqlTcpServerHandler::readTcpPacket);
-    //connect(tcpServerConnection, &QAbstractSocket::errorOccurred, this, &SocketHandler::displayError);
+    connect(socket, &QIODevice::readyRead, this, &SqlTcpServerHandler::readTcpPacket);
 }
 
 void SqlTcpServerHandler::readTcpPacket()
 {
+    //We get the sender object with qobject_cast, since we experienced multithreading problems using a member object
     QTcpSocket* readSocket = qobject_cast<QTcpSocket*>(sender());
     QHostAddress senderAddress = readSocket->peerAddress();
     QByteArray data = readSocket->readAll();
@@ -59,7 +65,7 @@ void SqlTcpServerHandler::readTcpPacket()
                 retVec.push_back(q.value(0).toString());
                 retVec.push_back(q.value(1).toString());
                 retVec.push_back(q.value(2).toString());
-                sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+                sendTcpPacket(readSocket, buildResponseByteArray(retVec));
             }
             else
             {
@@ -82,7 +88,7 @@ void SqlTcpServerHandler::readTcpPacket()
         if (q.exec())
         {
             retVec.push_back(QString::number(q.numRowsAffected()));
-            sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+            sendTcpPacket(readSocket, buildResponseByteArray(retVec));
         }
         else
         {
@@ -101,7 +107,7 @@ void SqlTcpServerHandler::readTcpPacket()
         if (q.exec())
         {
             retVec.push_back(QString::number(q.numRowsAffected()));
-            sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+            sendTcpPacket(readSocket, buildResponseByteArray(retVec));
         }
         else
         {
@@ -118,7 +124,7 @@ void SqlTcpServerHandler::readTcpPacket()
         if (q.exec())
         {
             retVec.push_back(QString::number(q.numRowsAffected()));
-            sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+            sendTcpPacket(readSocket, buildResponseByteArray(retVec));
         }
         else
         {
@@ -139,7 +145,7 @@ void SqlTcpServerHandler::readTcpPacket()
                 q.next();
                 retVec.push_back(QString::number(q.value(0).toInt()));
                 retVec.push_back(q.value(1).toString());
-                sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+                sendTcpPacket(readSocket, buildResponseByteArray(retVec));
             }
             else
             {
@@ -167,7 +173,7 @@ void SqlTcpServerHandler::readTcpPacket()
                 retVec.push_back(q.value(1).toString());
                 retVec.push_back(q.value(2).toString());
                 retVec.push_back(q.value(3).toString());
-                sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+                sendTcpPacket(readSocket, buildResponseByteArray(retVec));
             }
             else
             {
@@ -193,12 +199,12 @@ void SqlTcpServerHandler::readTcpPacket()
                 q.next();
                 retVec.push_back(q.value(0).toString());
                 retVec.push_back(q.value(1).toString());
-                sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+                sendTcpPacket(readSocket, buildResponseByteArray(retVec));
             }
             else
             {
                 qDebug() << "SQL: Failed select" << queryCode;
-                sendTcpPacket(mTcpServerConnection, sendFalse());
+                sendTcpPacket(readSocket, sendFalse());
             }
         }
         else
@@ -218,7 +224,7 @@ void SqlTcpServerHandler::readTcpPacket()
         if (q.exec())
         {
             retVec.push_back(QString::number(q.numRowsAffected()));
-            sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+            sendTcpPacket(readSocket, buildResponseByteArray(retVec));
         }
         else
         {
@@ -238,7 +244,7 @@ void SqlTcpServerHandler::readTcpPacket()
             {
                 q.next();
                 retVec.push_back(q.value(0).toString());
-                sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+                sendTcpPacket(readSocket, buildResponseByteArray(retVec));
             }
             else
             {
@@ -263,7 +269,7 @@ void SqlTcpServerHandler::readTcpPacket()
             {
                 q.next();
                 retVec.push_back(QString::number(q.value(0).toInt()));
-                sendTcpPacket(mTcpServerConnection, buildResponseByteArray(retVec));
+                sendTcpPacket(readSocket, buildResponseByteArray(retVec));
             }
             else
             {
