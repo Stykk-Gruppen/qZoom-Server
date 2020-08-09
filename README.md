@@ -14,6 +14,7 @@ git clone https://github.com/Feqzz/qZoom-Server/
 cd qZoom-Server
 qmake
 make
+make install
 ```
 
 # Documentation

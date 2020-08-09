@@ -1,8 +1,8 @@
 #include <QCoreApplication>
-#include "udpsockethandler.h"
-#include "tcpserverhandler.h"
-#include "sqltcpserverhandler.h"
-#include "roomshandler.h"
+#include "handlers/udpsockethandler.h"
+#include "handlers/tcpserverhandler.h"
+#include "handlers/sqltcpserverhandler.h"
+#include "handlers/roomshandler.h"
 #include <iostream>
 
 /*! \mainpage My Personal Index Page
@@ -34,9 +34,7 @@ int main(int argc, char *argv[])
                                                    QCoreApplication::translate("main", "port number"));
     QCommandLineOption sqlPortNumber(QStringList() << "s" << "sql", QCoreApplication::translate("main", "Sets the port number for the SQL-TCP socket"),
                                                    QCoreApplication::translate("main", "port number"));
-    /*QCommandLineOption removeOldParticipantsOption("p", QCoreApplication::translate("main", "Sets the interval of removal of inactive participants to <seconds>. The default value is 10 minutes."),
-                                                   QCoreApplication::translate("main", "seconds"));*/
-    //parser.addOption(removeOldParticipantsOption);
+
     parser.addOption(udpPortNumber);
     parser.addOption(tcpPortNumber);
     parser.addOption(sqlPortNumber);

@@ -17,23 +17,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 LIBS += -L/usr/lib -I/usr/include
 
 SOURCES += \
-        database.cpp \
-        main.cpp \
-        participant.cpp \
-        roomshandler.cpp \
-        sqltcpserverhandler.cpp \
-        tcpserverhandler.cpp \
-        udpsockethandler.cpp
+        core/database.cpp \
+        core/participant.cpp \
+        handlers/roomshandler.cpp \
+        handlers/sqltcpserverhandler.cpp \
+        handlers/tcpserverhandler.cpp \
+        handlers/udpsockethandler.cpp \
+        main.cpp
+
 
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
+target.path = /usr/local/bin/
+#qnx: target.path = /tmp/$${TARGET}/bin
+#else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    database.h \
-    participant.h \
-    roomshandler.h \
-    sqltcpserverhandler.h \
-    tcpserverhandler.h \
-    udpsockethandler.h
+    core/database.h \
+    core/participant.h \
+    handlers/roomshandler.h \
+    handlers/sqltcpserverhandler.h \
+    handlers/tcpserverhandler.h \
+    handlers/udpsockethandler.h
