@@ -142,12 +142,10 @@ void RoomsHandler::removeEmptyRoom(const QString& roomId)
  */
 bool RoomsHandler::removeParticipant(const QString& roomId, const QString& streamId)
 {
-
     mMap.at(roomId).erase(streamId);
     removeEmptyRoom(roomId);
 
     QSqlQuery q(mDatabase->getDb());
-    //DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId);
     q.prepare("DELETE FROM roomSession WHERE roomId = :roomId AND userId IN (SELECT id from user WHERE streamId = :streamId)");
     q.bindValue(":streamId", streamId);
     q.bindValue(":roomId", roomId);

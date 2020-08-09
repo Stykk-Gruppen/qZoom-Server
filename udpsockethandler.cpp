@@ -78,20 +78,20 @@ void UdpSocketHandler::readPendingDatagrams()
             continue;
         }
 
+        const std::map<QString, std::map<QString, Participant*>> map = mRoomsHandler->getMap();
        // mRoomsHandler->mMutex->lock();//Maybe we do not need this mutex?
-        if(mRoomsHandler->getMap().count(roomId))
-
+        if(map.count(roomId))
         {
-            if (mRoomsHandler->getMap().at(roomId).count(streamId))
+            if (map.at(roomId).count(streamId))
             {
                 std::map<QString, Participant*>::const_iterator i;
-                for (i = mRoomsHandler->getMap().at(roomId).begin(); i != mRoomsHandler->getMap().at(roomId).end(); i++)
+                for (i = map.at(roomId).begin(); i != map.at(roomId).end(); i++)
                 {
                     if(i->second && i->second->getTcpSocket() && senderAddress != i->second->getTcpSocket()->peerAddress())
                     {
                         if (i->second->getTcpSocket()->isWritable())
                         {
-                            sendDatagram(returnData,i->second->getTcpSocket()->peerAddress());
+                            sendDatagram(returnData, i->second->getTcpSocket()->peerAddress());
                             //QtConcurrent::run(this, &UdpSocketHandler::sendDatagram, returnData, i->second->getTcpSocket()->peerAddress());
                             //qDebug() << "Sending from: " << mSenderAddress.toIPv4Address() << " to: " << i->second->getTcpSocket()->peerAddress().toIPv4Address() << i->first;
                         }
