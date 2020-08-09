@@ -2,7 +2,7 @@
 #define ROOMSHANDLER_H
 
 #include <QObject>
-#include "database.h"
+#include "core/database.h"
 #include <QNetworkDatagram>
 #include <QProcess>
 #include <mutex>
@@ -10,11 +10,10 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QMultiMap>
 #include <QDateTime>
-#include "database.h"
 #include "config.cpp"
 #include <QMutex>
 #include <QTcpSocket>
-#include "participant.h"
+#include "core/participant.h"
 
 class RoomsHandler
 {

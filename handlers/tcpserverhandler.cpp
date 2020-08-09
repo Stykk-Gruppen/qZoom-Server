@@ -1,7 +1,7 @@
-﻿#include "tcpserverhandler.h"
+#include "tcpserverhandler.h"
 
 TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, int _portNumber, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
-{     
+{
     mPortNumber = _portNumber;
     initTcpServer();
 }

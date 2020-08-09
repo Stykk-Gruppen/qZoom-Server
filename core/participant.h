@@ -13,6 +13,7 @@ public:
     QString getDisplayName() const;
     QByteArray getVideoHeader() const;
     QTcpSocket* getTcpSocket();
+
 private:
     QString mDisplayName;
     QByteArray mVideoHeader;

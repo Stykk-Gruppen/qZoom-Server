@@ -6,7 +6,7 @@
 #include <QTcpSocket>
 #include <QtSql>
 #include <QSqlQuery>
-#include "database.h"
+#include "core/database.h"
 
 class SqlTcpServerHandler : public QObject
 {
