@@ -27,7 +27,8 @@ void UdpSocketHandler::initSocket()
  * @param arr QByteArray
  * @param addr QHostAddress
  */
-void UdpSocketHandler::sendDatagram(QByteArray arr, QHostAddress addr)
+
+void UdpSocketHandler::sendDatagram(const QByteArray& arr, const QHostAddress& addr)
 {
     int error = mUdpSocket->writeDatagram(arr, arr.size(), QHostAddress(addr), mPortNumber);
     if(error < 0)
@@ -81,10 +82,10 @@ void UdpSocketHandler::readPendingDatagrams()
         if(mRoomsHandler->getMap().count(roomId))
 
         {
-            if (mRoomsHandler->getMap()[roomId].count(streamId))
+            if (mRoomsHandler->getMap().at(roomId).count(streamId))
             {
-                std::map<QString, Participant*>::iterator i;
-                for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
+                std::map<QString, Participant*>::const_iterator i;
+                for (i = mRoomsHandler->getMap().at(roomId).begin(); i != mRoomsHandler->getMap().at(roomId).end(); i++)
                 {
                     if(i->second && i->second->getTcpSocket() && senderAddress != i->second->getTcpSocket()->peerAddress())
                     {
@@ -115,4 +116,3 @@ void UdpSocketHandler::readPendingDatagrams()
         //mRoomsHandler->mMutex->unlock();
     }
 }
-

@@ -11,11 +11,12 @@ Participant::~Participant()
     mTcpSocket->close();
     delete mTcpSocket;
 }
+
 /**
  * @brief Participant::setHeader
  * @param header QByteArray
  */
-void Participant::setHeader(QByteArray header)
+void Participant::setHeader(const QByteArray& header)
 {
     mVideoHeader = header;
 }
@@ -23,7 +24,7 @@ void Participant::setHeader(QByteArray header)
  * @brief Participant::setDisplayName
  * @param displayName QString
  */
-void Participant::setDisplayName(QString displayName)
+void Participant::setDisplayName(const QString& displayName)
 {
     mDisplayName = displayName;
 }
@@ -47,7 +48,7 @@ QByteArray Participant::getVideoHeader() const
  * @brief Participant::getTcpSocket
  * @return QTcpSocket pointer
  */
-QTcpSocket* Participant::getTcpSocket() const
+QTcpSocket* Participant::getTcpSocket()
 {
     return mTcpSocket;
 }

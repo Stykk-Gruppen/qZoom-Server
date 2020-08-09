@@ -5,6 +5,7 @@ RoomsHandler::RoomsHandler(Database* _database)
     mDatabase = _database;
     mMutex = new std::mutex;
 }
+
 /**
  * Populates the map with key and value, gets run if someone is joining a room
  * and exists in the database, but not in the map.
@@ -14,7 +15,8 @@ RoomsHandler::RoomsHandler(Database* _database)
  * @param header QByteArray the participant video header data
  * @param qTcpSocket QTcpSocket pointer, the particpant socket, to preserve their connection
  */
-void RoomsHandler::initialInsert(QString roomId, QString streamId, QString displayName, QByteArray header, QTcpSocket* qTcpSocket)
+void RoomsHandler::initialInsert(const QString& roomId, const QString& streamId,
+                                 const QString& displayName, const QByteArray& header, QTcpSocket* qTcpSocket)
 {
     mMap[roomId][streamId] = new Participant(displayName, header, qTcpSocket);
     qDebug() << "Added streamId, displayName, header and QTcpSocket:" << streamId << displayName << "to the map after confirming with database";
@@ -27,10 +29,11 @@ void RoomsHandler::initialInsert(QString roomId, QString streamId, QString displ
  * @param streamId QString
  * @param header QByteArray
  */
-void RoomsHandler::updateVideoHeader(QString roomId, QString streamId, QByteArray header)
+void RoomsHandler::updateVideoHeader(const QString& roomId, const QString& streamId, const QByteArray& header)
 {
-    mMap[roomId][streamId]->setHeader(header);
+    mMap.at(roomId).at(streamId)->setHeader(header);
 }
+
 /**
  * Updates the displayName QString in the map at using the keys
  * roomId and streamId
@@ -38,16 +41,17 @@ void RoomsHandler::updateVideoHeader(QString roomId, QString streamId, QByteArra
  * @param streamId QString
  * @param displayName QString
  */
-void RoomsHandler::updateDisplayName(QString roomId, QString streamId, QString displayName)
+void RoomsHandler::updateDisplayName(const QString& roomId, const QString& streamId, const QString& displayName)
 {
-    mMap[roomId][streamId]->setDisplayName(displayName);
+    mMap.at(roomId).at(streamId)->setDisplayName(displayName);
 }
+
 /**
  * Attempts to remove the participant with the streamId from the database.
  * Will only be removed if the participant is a guest user.
  * @param streamId
  */
-void RoomsHandler::removeGuestFromUserTable(QString streamId)
+void RoomsHandler::removeGuestFromUserTable(const QString& streamId)
 {
     QSqlQuery q(mDatabase->getDb());
     bool isGuest = false;
@@ -96,11 +100,12 @@ void RoomsHandler::removeGuestFromUserTable(QString streamId)
         }
     }
 }
+
 /**
  * @brief RoomsHandler::getMap
  * @return std::map<QString, std::map<QString, Participant *>>
  */
-std::map<QString, std::map<QString, Participant *>> RoomsHandler::getMap() const
+const std::map<QString, std::map<QString, Participant *> > RoomsHandler::getMap() const
 {
     return mMap;
 }
@@ -117,14 +122,15 @@ std::mutex *RoomsHandler::getMutex() const
  * Will check if the room is empty before deleting
  * @param roomId QString
  */
-void RoomsHandler::removeEmptyRoom(QString roomId)
+void RoomsHandler::removeEmptyRoom(const QString& roomId)
 {
-    if(mMap[roomId].size()<1)
+    if(mMap.at(roomId).size() < 1)
     {
         mMap.erase(roomId);
         qDebug() << "roomId " << roomId << " was empty,  deleting";
     }
 }
+
 /**
  * Remove a participant from a room, will also attempt to delete the room, if no
  * participants is left inside the room. Will also attempt to remove the particpant
@@ -134,10 +140,10 @@ void RoomsHandler::removeEmptyRoom(QString roomId)
  * @param streamId QString
  * @return true if query was executed, regardless of numRowsAffected()
  */
-bool RoomsHandler::removeParticipant(QString roomId, QString streamId)
+bool RoomsHandler::removeParticipant(const QString& roomId, const QString& streamId)
 {
 
-    mMap[roomId].erase(streamId);
+    mMap.at(roomId).erase(streamId);
     removeEmptyRoom(roomId);
 
     QSqlQuery q(mDatabase->getDb());

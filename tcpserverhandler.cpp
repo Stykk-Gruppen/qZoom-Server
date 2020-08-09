@@ -42,7 +42,7 @@ void TcpServerHandler::acceptTcpConnection()
  * @param roomId QString which room the user belongs to
  * @param streamId QString identifier for the user
  */
-void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, QString roomId, QString streamId)
+void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, const QString& roomId, const QString& streamId)
 {
     connect(readSocket, &QTcpSocket::disconnected, [=] ()
     {
@@ -126,7 +126,8 @@ void TcpServerHandler::readTcpPacket()
     mRoomsHandler->getMutex()->lock();
     if(mRoomsHandler->getMap().count(roomId))
     {
-        if (mRoomsHandler->getMap()[roomId].count(streamId) && data.size() >= 1)
+        //TODO remove data.size
+        if (mRoomsHandler->getMap().at(roomId).count(streamId) && data.size() >= 1)
         {
             /* If both the roomId and streamId exists in the map, we expect a extra byte.
             *  It will let us know what kind of action the client wants to take
@@ -161,6 +162,20 @@ void TcpServerHandler::readTcpPacket()
             case AUDIO_DISABLED:
             {
                 sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, AUDIO_DISABLED);
+                break;
+            }
+            case KICK_PARTICIPANT:
+            {
+                qDebug() << "kick participant case";
+                //qDebug() << data;
+                data.remove(0, 1);
+                QByteArray tempArr = data;
+                int participantStreamIdLength = tempArr[0];
+                tempArr.remove(0, 1);
+                QByteArray participantStreamIdArray = QByteArray(tempArr, participantStreamIdLength);
+                QString participantStreamId(participantStreamIdArray);
+                QTcpSocket* sckt = mRoomsHandler->getMap().at(roomId).at(participantStreamId)->getTcpSocket();
+                sendHeader(sckt, data, KICK_PARTICIPANT);
                 break;
             }
             default:
@@ -214,6 +229,7 @@ void TcpServerHandler::readTcpPacket()
     }
     mRoomsHandler->getMutex()->unlock();
 }
+
 /**
  * Prepends the headerValue to the QByteArray and sends the result using the
  * receiverSocket.
@@ -221,7 +237,7 @@ void TcpServerHandler::readTcpPacket()
  * @param data QByteArray
  * @param headerValue int
  */
-void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, int headerValue)
+void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, const int& headerValue)
 {
     if(!receiverSocket)
     {
@@ -235,6 +251,7 @@ void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, i
         qDebug() << receiverSocket->errorString() << Q_FUNC_INFO;
     }
 }
+
 /**
  * Sends the header from the participant to everyone already in the map. Then compiles
  * all the headers from everyone else and returns in to the particpant.
@@ -243,16 +260,18 @@ void TcpServerHandler::sendHeader(QTcpSocket* receiverSocket, QByteArray data, i
  * @param header QByteArray
  * @param readSocket QTcpSocket pointer belonging to the particpant
  */
-void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, QString streamId, QByteArray header, QTcpSocket* readSocket)
+void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(const QString& roomId, const QString& streamId, QByteArray header, QTcpSocket* readSocket)
 {
     QByteArray tempArr;
-    std::map<QString, Participant*>::iterator i;
+    const std::map<QString, std::map<QString, Participant*>> map = mRoomsHandler->getMap();
+    std::map<QString, Participant*>::const_iterator i;
     //Prepend number of headers
     header.prepend(int(1));
     //Append end of header char
     header.append(27);
+
     //Compile all the info about the other people in the map to return back to the particpant
-    for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
+    for (i = map.at(roomId).begin(); i != map.at(roomId).end(); i++)
     {
         //Do not add your own info to the compiled data
         if (i->first != streamId && i->second)
@@ -275,9 +294,11 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
         }
     }
     //Prepend number of headers
-    tempArr.prepend(mRoomsHandler->getMap()[roomId].size() - 1);
+    tempArr.prepend(map.at(roomId).size() - 1);
+    qDebug() << "Sending all headers " << /*tempArr << */ " in map to: " << streamId;
     sendHeader(readSocket, tempArr, VIDEO_HEADER);
 }
+
 /**
  * Go through the map and send the header to everyone else in the map.
  * @param roomId QString
@@ -285,14 +306,15 @@ void TcpServerHandler::SendAndRecieveFromEveryParticipantInRoom(QString roomId, 
  * @param header QByteArray
  * @param headerCode int
  */
-void TcpServerHandler::sendHeaderToEveryParticipant(QString roomId, QString streamId, QByteArray header, int headerCode)
+void TcpServerHandler::sendHeaderToEveryParticipant(const QString& roomId, const QString& streamId, QByteArray header, const int& headerCode)
 {
     //Prepend number of headers
     header.prepend(int(1));
     //Append end of header char
     header.append(27);
-    std::map<QString, Participant*>::iterator i;
-    for (i = mRoomsHandler->getMap()[roomId].begin(); i != mRoomsHandler->getMap()[roomId].end(); i++)
+    std::map<QString, Participant*>::const_iterator i;
+    const std::map<QString, std::map<QString, Participant*>> map = mRoomsHandler->getMap();
+    for (i = map.at(roomId).begin(); i != map.at(roomId).end(); i++)
     {
         if (i->first != streamId && i->second)
         {

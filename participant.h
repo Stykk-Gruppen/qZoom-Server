@@ -8,11 +8,11 @@ class Participant
 public:
     Participant(QString _displayName, QByteArray _header, QTcpSocket* _tcpSocket);
     ~Participant();
-    void setHeader(QByteArray header);
-    void setDisplayName(QString displayName);
+    void setHeader(const QByteArray& header);
+    void setDisplayName(const QString& displayName);
     QString getDisplayName() const;
     QByteArray getVideoHeader() const;
-    QTcpSocket* getTcpSocket() const;
+    QTcpSocket* getTcpSocket();
 private:
     QString mDisplayName;
     QByteArray mVideoHeader;
