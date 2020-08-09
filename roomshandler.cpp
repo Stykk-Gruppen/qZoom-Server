@@ -142,6 +142,10 @@ void RoomsHandler::removeEmptyRoom(const QString& roomId)
  */
 bool RoomsHandler::removeParticipant(const QString& roomId, const QString& streamId)
 {
+    if(!mMap.count(roomId))
+    {
+        return false;
+    }
     mMap.at(roomId).erase(streamId);
     removeEmptyRoom(roomId);
 
