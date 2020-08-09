@@ -5,17 +5,12 @@
 #include "handlers/roomshandler.h"
 #include <iostream>
 
-/*! \mainpage My Personal Index Page
+/*! \mainpage qZoom-Server Documentation
  *
  * \section intro_sec Introduction
  *
- * This is the introduction.
+ * This document describes all the C++ classes used in our qZoom Server
  *
- * \section install_sec Installation
- *
- * \subsection step1 Step 1: Opening the box
- *
- * etc...
  */
 
 int main(int argc, char *argv[])
