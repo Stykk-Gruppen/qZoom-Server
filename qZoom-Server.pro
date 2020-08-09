@@ -26,11 +26,19 @@ SOURCES += \
         handlers/udpsockethandler.cpp \
         main.cpp
 
+configuration.path = /usr/local/qZoom-Server/config/
+configuration.files = docs/*
+
+unix:configuration.extra = rm -f /usr/local/qZoom-Server/config/qZoom-Server.conf && echo "hostname = " >> /usr/local/qZoom-Server/config/qZoom-Server.conf; \
+echo "databasename = " >> /usr/local/qZoom-Server/config/qZoom-Server.conf; \
+echo "username = " >> /usr/local/qZoom-Server/config/qZoom-Server.conf; \
+echo "password = " >> /usr/local/qZoom-Server/config/qZoom-Server.conf
+
 # Default rules for deployment.
 target.path = /usr/local/bin/
 #qnx: target.path = /tmp/$${TARGET}/bin
 #else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+!isEmpty(target.path): INSTALLS += target configuration
 
 HEADERS += \
     core/database.h \
