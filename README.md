@@ -24,7 +24,7 @@ cd /usr/local/qZoom-Server/config
 sudo vim qZoom-Server.conf
 ```
 ```
-hostname =
+hostname = localhost
 databasename =
 username =
 password =
