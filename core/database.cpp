@@ -18,34 +18,47 @@ Database::Database()
     }
 }
 /**
- * Iterates the mConfigurationOptions QStringList to find the m
- * @param optionIndex
- * @return
+ * Iterates the mConfigurationOptions QStringList to find the QString
+ * matching option, and returns the index where it is found
+ * @param optionIndex QString
+ * @return int index of matching QString or -1 on failure
  */
 int Database::findOptionIndex(QString option)
 {
     for(int j=0;j<mConfigurationOptions.size();j++)
     {
-         if(option.compare(mConfigurationOptions[j])==0)
+         if(option.compare(mConfigurationOptions[j]) == 0)
          {
             return j;
          }
     }
     return -1;
 }
-
-int Database::findRealIndex(int index)
+/**
+ * Iterates the mConfigurationVariablesIndices QList to find
+ * the int matching lookupIndex, and returns the location of found
+ * int.
+ * @param lookupIndex
+ * @return int index of matching int
+ */
+int Database::findRealIndex(int lookupIndex)
 {
     for(int i=0;i<mConfigurationVariablesIndices.size();i++)
     {
-        if(mConfigurationVariablesIndices[i]==index)
+        if(mConfigurationVariablesIndices[i] == lookupIndex)
         {
             return i;
         }
     }
     return -1;
 }
-
+/**
+ * Iterates through the QByteArray and looks for the char '='
+ * If found it will swap from appending bytes to the option QString
+ * to the var QString. It is \b very \b strict when it comes to spaces before
+ * and after '='.
+ * @param line QByteArray
+ */
 void Database::parseLine(QByteArray line)
 {
     QString option;
@@ -77,7 +90,10 @@ void Database::parseLine(QByteArray line)
     mConfigurationVariables.append(var);
     mConfigurationVariablesIndices.append(findOptionIndex(option));
 }
-
+/**
+ * @brief Database::readConfigurationFile
+ * @return
+ */
 bool Database::readConfigurationFile()
 {
     QFile file("test.conf");
