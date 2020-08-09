@@ -17,7 +17,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 LIBS += -L/usr/lib -I/usr/include
 
 SOURCES += \
-        config.cpp \
         database.cpp \
         main.cpp \
         participant.cpp \

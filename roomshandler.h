@@ -11,7 +11,6 @@
 #include <QMultiMap>
 #include <QDateTime>
 #include "database.h"
-#include "config.cpp"
 #include <QMutex>
 #include <QTcpSocket>
 #include "participant.h"
