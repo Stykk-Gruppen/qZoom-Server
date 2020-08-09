@@ -30,6 +30,7 @@ private:
     RoomsHandler* mRoomsHandler;
     QTcpServer* mTcpServer;
     int mPortNumber;
+    void printTcpPacketInfo(QHostAddress sender, QString streamId,QString roomId, QString displayName, QByteArray entirePacket);
 };
 
 #endif // TCPSERVERHANDLER_H
