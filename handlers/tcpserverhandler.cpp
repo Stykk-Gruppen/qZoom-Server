@@ -71,7 +71,8 @@ void TcpServerHandler::setupDisconnectAction(QTcpSocket* readSocket, const QStri
  */
 void TcpServerHandler::printTcpPacketInfo(QHostAddress sender, QString streamId,
                                           QString roomId, QString displayName,
-                                          QByteArray entirePacket){
+                                          QByteArray entirePacket)
+{
     time_t now = time(0);
     char* dt = ctime(&now);
     qDebug() << "Timetamp: " << dt;
@@ -123,6 +124,20 @@ void TcpServerHandler::readTcpPacket()
     data.remove(0, streamIdLength);
     setupDisconnectAction(readSocket, roomId, streamId);
 
+    //Checks if the header is a VIDEO_HEADER.
+    //If true, the number pointing out the VIDEO_HEADER gets removed from the header.
+    QByteArray cleanVideoHeader;
+    QByteArray cleanVideoHeaderWithStreamIdAndDisplayName;
+    if ((int)data[0] == VIDEO_HEADER)
+    {
+        cleanVideoHeader = data;
+        cleanVideoHeader.remove(0, 1);
+        cleanVideoHeaderWithStreamIdAndDisplayName.prepend(streamId.toLocal8Bit().data());
+        cleanVideoHeaderWithStreamIdAndDisplayName.prepend(streamId.size());
+        cleanVideoHeaderWithStreamIdAndDisplayName.prepend(displayName.toLocal8Bit().data());
+        cleanVideoHeaderWithStreamIdAndDisplayName.prepend(displayName.size());
+    }
+
     //printTcpPacketInfo(senderAddress,streamId,roomId,displayName,data);
 
     //If the roomId is Debug, send back the recieved header
@@ -151,13 +166,8 @@ void TcpServerHandler::readTcpPacket()
             {
             case VIDEO_HEADER:
             {
-                data.remove(0,1);
-                defaultSendHeader.prepend(displayName.toLocal8Bit().data());
-                defaultSendHeader.prepend(displayName.size());
-                defaultSendHeader.append(data);
-
-                mRoomsHandler->updateVideoHeader(roomId, streamId, data);
-                sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_HEADER);
+                mRoomsHandler->updateVideoHeader(roomId, streamId, cleanVideoHeader);
+                sendHeaderToEveryParticipant(roomId, streamId, cleanVideoHeaderWithStreamIdAndDisplayName, VIDEO_HEADER);
                 break;
             }
             case NEW_DISPLAY_NAME:
@@ -212,15 +222,8 @@ void TcpServerHandler::readTcpPacket()
             if (q.exec() && q.size() > 0)
             {
                 q.next();
-                data.remove(0, 1);
-                mRoomsHandler->initialInsert(roomId, streamId, displayName, data, readSocket);
-                QByteArray defaultSendHeader;
-                defaultSendHeader.prepend(streamId.toLocal8Bit().data());
-                defaultSendHeader.prepend(streamId.size());
-                defaultSendHeader.prepend(displayName.toLocal8Bit().data());
-                defaultSendHeader.prepend(displayName.size());
-                defaultSendHeader.append(data);
-                SendAndRecieveFromEveryParticipantInRoom(roomId, streamId, defaultSendHeader, readSocket);
+                mRoomsHandler->initialInsert(roomId, streamId, displayName, cleanVideoHeader, readSocket);
+                SendAndRecieveFromEveryParticipantInRoom(roomId, streamId, cleanVideoHeaderWithStreamIdAndDisplayName, readSocket);
             }
             else
             {
@@ -239,11 +242,8 @@ void TcpServerHandler::readTcpPacket()
         q.bindValue(":streamId", streamId);
         if (q.exec() && q.size() > 0)
         {
-            while (q.next())
-            {
-                data.remove(0, 1);
-                mRoomsHandler->initialInsert(roomId, streamId, displayName, data, readSocket);
-            }
+            q.next();
+            mRoomsHandler->initialInsert(roomId, streamId, displayName, cleanVideoHeader, readSocket);
         }
         else
         {
