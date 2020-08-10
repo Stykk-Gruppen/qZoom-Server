@@ -24,12 +24,3 @@ CREATE TABLE IF NOT EXISTS roomSession
 	roomId VARCHAR(32) NOT NULL,
 	userId INT NOT NULL UNIQUE
 );
-
-INSERT INTO user (streamId, username, password)
-VALUES ("Alpha", "stian", "123"),
-("Bravo", "tarald", "123"),
-("Charlie", "kent", "123");
-
-INSERT INTO room (id, host, password)
-VALUES ("Delta", 1, "123"),
-("Debug", 2, "123");
