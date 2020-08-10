@@ -104,6 +104,7 @@ void TcpServerHandler::readTcpPacket()
 
     //DisplayName and StreamId will be sent back to the client
     //We need to make a copy of this data before we start removing it
+
     QByteArray headerDataWithDisplayNameAndStreamId = data;
 
     int displayNameLength = data[0];
@@ -150,8 +151,13 @@ void TcpServerHandler::readTcpPacket()
             {
             case VIDEO_HEADER:
             {
+                data.remove(0,1);
+                defaultSendHeader.prepend(displayName.toLocal8Bit().data());
+                defaultSendHeader.prepend(displayName.size());
+                defaultSendHeader.append(data);
+
                 mRoomsHandler->updateVideoHeader(roomId, streamId, data);
-                sendHeaderToEveryParticipant(roomId, streamId, headerDataWithDisplayNameAndStreamId, VIDEO_HEADER);
+                sendHeaderToEveryParticipant(roomId, streamId, defaultSendHeader, VIDEO_HEADER);
                 break;
             }
             case NEW_DISPLAY_NAME:
@@ -206,8 +212,15 @@ void TcpServerHandler::readTcpPacket()
             if (q.exec() && q.size() > 0)
             {
                 q.next();
+                data.remove(0, 1);
                 mRoomsHandler->initialInsert(roomId, streamId, displayName, data, readSocket);
-                SendAndRecieveFromEveryParticipantInRoom(roomId, streamId, headerDataWithDisplayNameAndStreamId, readSocket);
+                QByteArray defaultSendHeader;
+                defaultSendHeader.prepend(streamId.toLocal8Bit().data());
+                defaultSendHeader.prepend(streamId.size());
+                defaultSendHeader.prepend(displayName.toLocal8Bit().data());
+                defaultSendHeader.prepend(displayName.size());
+                defaultSendHeader.append(data);
+                SendAndRecieveFromEveryParticipantInRoom(roomId, streamId, defaultSendHeader, readSocket);
             }
             else
             {
@@ -228,6 +241,7 @@ void TcpServerHandler::readTcpPacket()
         {
             while (q.next())
             {
+                data.remove(0, 1);
                 mRoomsHandler->initialInsert(roomId, streamId, displayName, data, readSocket);
             }
         }
