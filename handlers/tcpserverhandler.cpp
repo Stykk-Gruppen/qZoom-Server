@@ -127,6 +127,7 @@ void TcpServerHandler::readTcpPacket()
     {
         cleanVideoHeader = data;
         cleanVideoHeader.remove(0, 1);
+        cleanVideoHeaderWithStreamIdAndDisplayName = cleanVideoHeader;
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(streamId.toLocal8Bit().data());
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(streamId.size());
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(displayName.toLocal8Bit().data());
