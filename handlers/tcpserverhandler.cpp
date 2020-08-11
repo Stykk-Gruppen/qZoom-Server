@@ -132,7 +132,6 @@ void TcpServerHandler::readTcpPacket()
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(streamId.size());
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(displayName.toLocal8Bit().data());
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(displayName.size());
-        cleanVideoHeaderWithStreamIdAndDisplayName.append(cleanVideoHeader);
     }
 
    // printTcpPacketInfo(senderAddress,streamId,roomId,displayName,cleanVideoHeaderWithStreamIdAndDisplayName);
