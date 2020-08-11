@@ -103,11 +103,6 @@ void TcpServerHandler::readTcpPacket()
     QString roomId(roomIdArray);
     data.remove(0, roomIdLength);
 
-    //DisplayName and StreamId will be sent back to the client
-    //We need to make a copy of this data before we start removing it
-
-    QByteArray headerDataWithDisplayNameAndStreamId = data;
-
     int displayNameLength = data[0];
     data.remove(0, 1);
 
@@ -136,16 +131,19 @@ void TcpServerHandler::readTcpPacket()
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(streamId.size());
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(displayName.toLocal8Bit().data());
         cleanVideoHeaderWithStreamIdAndDisplayName.prepend(displayName.size());
+        cleanVideoHeaderWithStreamIdAndDisplayName.append(cleanVideoHeader);
     }
 
-    //printTcpPacketInfo(senderAddress,streamId,roomId,displayName,data);
+   // printTcpPacketInfo(senderAddress,streamId,roomId,displayName,cleanVideoHeaderWithStreamIdAndDisplayName);
 
     //If the roomId is Debug, send back the recieved header
     if(roomId == "Debug")
     {
-        headerDataWithDisplayNameAndStreamId.append(27);
-        headerDataWithDisplayNameAndStreamId.prepend(int(1));
-        sendHeader(readSocket, headerDataWithDisplayNameAndStreamId, VIDEO_HEADER);
+        //Append end of header char
+        cleanVideoHeaderWithStreamIdAndDisplayName.append(27);
+        //Prepend number of headers
+        cleanVideoHeaderWithStreamIdAndDisplayName.prepend(int(1));
+        sendHeader(readSocket, cleanVideoHeaderWithStreamIdAndDisplayName, VIDEO_HEADER);
         return;
     }
 
