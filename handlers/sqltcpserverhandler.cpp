@@ -1,9 +1,11 @@
 #include "sqltcpserverhandler.h"
 
-SqlTcpServerHandler::SqlTcpServerHandler(int _portNumber, Database* _db, QObject *parent) : QObject(parent)
+SqlTcpServerHandler::SqlTcpServerHandler(int _portNumber, Database* _db,
+                                         RoomsHandler* roomsHandler, QObject *parent) : QObject(parent)
 {
     mPortNumber = _portNumber;
     mDb = _db;
+    mRoomsHandler = roomsHandler;
     initTcpServer();
 }
 /**
@@ -217,6 +219,20 @@ void SqlTcpServerHandler::readTcpPacket()
     case 7:
     {
         vec = parseData(data);
+        const std::map<QString, std::map<QString, Participant*>> map = mRoomsHandler->getMap();
+        std::map<QString, std::map<QString, Participant*>>::const_iterator i;
+
+        for (i = map.begin(); i != map.end(); i++)
+        {
+            if (i->first == vec[3])
+            {
+                qDebug() << "Someone tried to update an active room. Host ID:" << vec[2].toInt();
+                retVec.push_back(QString::number(0));
+                sendTcpPacket(readSocket, buildResponseByteArray(retVec));
+                break;
+            }
+        }
+
         QSqlQuery q(mDb->getDb());
         q.prepare("UPDATE room SET id = :roomId, password = :roomPassword WHERE host = :host");
         q.bindValue(":roomId", vec[0]);

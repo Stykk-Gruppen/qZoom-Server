@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     RoomsHandler* roomsHandler = new RoomsHandler(db);
     new UdpSocketHandler(roomsHandler, portNumberUDP);
     new TcpServerHandler(roomsHandler, portNumberTCP);
-    new SqlTcpServerHandler(portNumberSQL, db);
+    new SqlTcpServerHandler(portNumberSQL, db, roomsHandler);
 
     return a.exec();
 }
