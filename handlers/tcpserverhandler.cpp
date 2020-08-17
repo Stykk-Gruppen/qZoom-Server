@@ -1,5 +1,10 @@
 #include "tcpserverhandler.h"
-
+/**
+ * @brief TcpServerHandler::TcpServerHandler
+ * @param _roomsHandler
+ * @param _portNumber
+ * @param parent
+ */
 TcpServerHandler::TcpServerHandler(RoomsHandler* _roomsHandler, int _portNumber, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {
     mPortNumber = _portNumber;

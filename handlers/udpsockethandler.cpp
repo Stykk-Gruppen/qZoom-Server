@@ -1,5 +1,10 @@
 #include "udpsockethandler.h"
-
+/**
+ * @brief UdpSocketHandler::UdpSocketHandler
+ * @param _roomsHandler
+ * @param _portNumber
+ * @param parent
+ */
 UdpSocketHandler::UdpSocketHandler(RoomsHandler* _roomsHandler, int _portNumber, QObject *parent) : QObject(parent), mRoomsHandler(_roomsHandler)
 {
     mPortNumber = _portNumber;
@@ -99,27 +104,9 @@ void UdpSocketHandler::readPendingDatagrams()
                         {
                             sendDatagram(returnData, i->second->getTcpSocket()->peerAddress());
                         }
-                        else
-                        {
-                            //TODO log this error
-                        }
-                    }
-                    else
-                    {
-                        //TODO log this error
                     }
                 }
             }
-            else
-            {
-                //TODO log this error
-                //qDebug() << "Could not find streamId in map" << Q_FUNC_INFO;
-            }
-        }
-        else
-        {
-            //TODO log this error
-            //qDebug() << "Could not find roomId" << roomId << " in map, func:" << Q_FUNC_INFO;
         }
     }
 }

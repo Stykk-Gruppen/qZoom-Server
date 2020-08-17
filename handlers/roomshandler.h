@@ -32,7 +32,6 @@ private:
     void removeGuestFromUserTable(const QString& streamId);
     std::map<QString, std::map<QString, Participant*>> mMap;
     std::mutex* mMutex;
-    uint16_t mPort = 1337;
     Database* mDatabase;
 };
 

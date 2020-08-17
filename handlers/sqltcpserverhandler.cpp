@@ -1,5 +1,11 @@
 #include "sqltcpserverhandler.h"
-
+/**
+ * @brief SqlTcpServerHandler::SqlTcpServerHandler
+ * @param _portNumber
+ * @param _db
+ * @param roomsHandler
+ * @param parent
+ */
 SqlTcpServerHandler::SqlTcpServerHandler(int _portNumber, Database* _db,
                                          RoomsHandler* roomsHandler, QObject *parent) : QObject(parent)
 {

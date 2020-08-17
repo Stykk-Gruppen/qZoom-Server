@@ -1,6 +1,8 @@
 #include "database.h"
 #include <iostream>
-
+/**
+ * @brief Database::Database
+ */
 Database::Database()
 {
     if(!readConfigurationFile())
@@ -110,7 +112,9 @@ bool Database::readConfigurationFile()
     }
     return true;
 }
-
+/**
+ * @brief Database::~Database
+ */
 Database::~Database()
 {
     mDb.close();
@@ -128,7 +132,6 @@ bool Database::connectToDatabase()
     mDb.setDatabaseName(mConfigurationVariables[findRealIndex(DATABASENAME)]);
     mDb.setUserName(mConfigurationVariables[findRealIndex(USERNAME)]);
     mDb.setPassword(mConfigurationVariables[findRealIndex(PASSWORD)]);
-    //qDebug() << mDb.lastError();
     return mDb.open();
 }
 
