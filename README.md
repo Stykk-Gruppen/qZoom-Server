@@ -1,5 +1,5 @@
 # qZoom-Server README
-The Server side of the qZoom project. It is responsible for routing the data to the correct users and handles SQL queries.
+The server side of the qZoom project. It is responsible for routing the data to the correct users and handles SQL queries.
 # Dependencies
 * `Qt 5.*`
 * `libqt5sql5-mysql`
