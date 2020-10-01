@@ -32,7 +32,7 @@ password =
 
 
 # Documentation
-The online documentation is available at this [website](https://tarves.no/docs/qZoom-Server/). Information about the process and more can be found in the client's
+The online documentation is available on this [website](https://tarves.no/docs/qZoom-Server/). Information about the process and more can be found in the client's
 [wiki](https://github.com/Feqzz/qZoom-Client/wiki).
 
 # Client
